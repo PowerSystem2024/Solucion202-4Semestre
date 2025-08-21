@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <title>La Leyenda de Aang: Avatar</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="js/avatar.js" defer></script>
+</head>
+
+<body>
+    <div class="contenedor-juego">
+        <header>
+            <h1 class="titulo-juego">AVATAR 🔥💧🌱🌪️</h1>
+        </header>
+
+        <!-- === SELECCIÓN DE PERSONAJE JUGADOR === -->
+        <section id="seleccionar-personaje" class="panel panel-personaje">
+            <h2 class="subtitulo">Elige tu Personaje (Jugador)</h2>
+            <div class="personajes">
+                <label class="opcion-personaje" for="Zuko-jugador">
+                    <input type="radio" name="personaje-jugador" id="Zuko-jugador" value="Zuko" />
+                    <img src="./img/zuko.jpg" alt="Zuko" class="img-personaje" />
+                    <span class="nombre-personaje">Zuko</span>
+                </label>
+
+                <label class="opcion-personaje" for="Katara-jugador">
+                    <input type="radio" name="personaje-jugador" id="Katara-jugador" value="Katara" />
+                    <img src="./img/katara.jpg" alt="Katara" class="img-personaje" />
+                    <span class="nombre-personaje">Katara</span>
+                </label>
+
+                <label class="opcion-personaje" for="Aang-jugador">
+                    <input type="radio" name="personaje-jugador" id="Aang-jugador" value="Aang" />
+                    <img src="./img/Aang.jpg" alt="Aang" class="img-personaje" />
+                    <span class="nombre-personaje">Aang</span>
+                </label>
+
+                <label class="opcion-personaje" for="Toph-jugador">
+                    <input type="radio" name="personaje-jugador" id="Toph-jugador" value="Toph" />
+                    <img src="./img/toph.jpeg" alt="Toph" class="img-personaje" />
+                    <span class="nombre-personaje">Toph</span>
+                </label>
+            </div>
+            <button id="boton-personaje" class="btn btn-primario">Seleccionar Jugador</button>
+        </section>
+
+        <!-- === SELECCIÓN DE PERSONAJE ENEMIGO === -->
+        <section id="seleccionar-enemigo" class="panel panel-personaje" style="margin-top: 20px;">
+            <h2 class="subtitulo">Elige tu Personaje (Enemigo)</h2>
+            <div class="personajes">
+                <label class="opcion-personaje" for="Zuko-enemigo">
+                    <input type="radio" name="personaje-enemigo" id="Zuko-enemigo" value="Zuko" />
+                    <img src="./img/zuko.jpg" alt="Zuko" class="img-personaje" />
+                    <span class="nombre-personaje">Zuko</span>
+                </label>
+
+                <label class="opcion-personaje" for="Katara-enemigo">
+                    <input type="radio" name="personaje-enemigo" id="Katara-enemigo" value="Katara" />
+                    <img src="./img/katara.jpg" alt="Katara" class="img-personaje" />
+                    <span class="nombre-personaje">Katara</span>
+                </label>
+
+                <label class="opcion-personaje" for="Aang-enemigo">
+                    <input type="radio" name="personaje-enemigo" id="Aang-enemigo" value="Aang" />
+                    <img src="./img/Aang.jpg" alt="Aang" class="img-personaje" />
+                    <span class="nombre-personaje">Aang</span>
+                </label>
+
+                <label class="opcion-personaje" for="Toph-enemigo">
+                    <input type="radio" name="personaje-enemigo" id="Toph-enemigo" value="Toph" />
+                    <img src="./img/toph.jpeg" alt="Toph" class="img-personaje" />
+                    <span class="nombre-personaje">Toph</span>
+                </label>
+            </div>
+            
+        </section>
+
+        <!-- === PANTALLA DE VIDAS Y ATAQUES === -->
+        <section id="seleccionar-ataque" class="panel panel-ataque" style="margin-top: 20px;">
+            <div id="versus-panel" style="display:flex; align-items:center; justify-content:center; margin-bottom:20px;">
+                <div id="versus-jugador" style="text-align:center;">
+                    <img id="img-jugador-vs" src="" alt="" style="width:120px; height:120px; border-radius:12px; border:3px solid #f90; background:#fff;">
+                    <div id="nombre-jugador-vs" style="font-weight:bold; margin-top:8px;"></div>
+                </div>
+                <div style="font-size:2.5rem; font-weight:bold; margin:0 30px;">VS</div>
+                <div id="versus-enemigo" style="text-align:center;">
+                    <img id="img-enemigo-vs" src="" alt="" style="width:120px; height:120px; border-radius:12px; border:3px solid #09f; background:#fff;">
+                    <div id="nombre-enemigo-vs" style="font-weight:bold; margin-top:8px;"></div>
+                </div>
+            </div>
+            <div class="vidas">
+                <p>Tu <span id="personaje-jugador" class="resaltado"></span> tiene <span id="vidas-jugador">3</span>
+                    vidas</p>
+                <p>El <span id="personaje-enemigo" class="resaltado"></span> tiene <span id="vidas-enemigo">3</span>
+                    vidas</p>
+            </div>
+            <div class="botones-ataque">
+                <button id="boton-puño" class="btn btn-ataque">Puño</button>
+                <button id="boton-embestida" class="btn btn-ataque">Embestida</button>
+                <button id="boton-patada" class="btn btn-ataque">Patada</button>
+                <button id="boton-barrida" class="btn btn-ataque">Barrida</button>
+            </div>
+        </section>
+
+        <!-- === PANTALLA DE MENSAJES === -->
+        <section id="mensajes" class="panel panel-mensajes" style="margin-top: 20px;">
+            <p id="texto-mensaje">Aquí aparecerán los resultados de cada ataque...</p>
+        </section>
+
+        <!-- === BOTÓN DE REINICIO === -->
+        <section id="reiniciar" class="panel panel-reiniciar" style="margin-top: 20px;">
+            <button id="boton-reiniciar" class="btn btn-secundario">Reiniciar</button>
+        </section>
+
+        <!-- Botón y panel de reglas -->
+        <div style="display: flex; justify-content: flex-end; margin: 10px 30px 0 0;">
+            <button id="boton-reglas" class="btn btn-secundario">Ver reglas</button>
+        </div>
+        <div id="panel-reglas"
+            style="display:none; position:fixed; top:60px; right:40px; background:#fff; border:2px solid #888; padding:18px 24px; z-index:1000; box-shadow:0 2px 12px #0003;">
+            <h3>Reglas del juego</h3>
+            <ul style="margin-bottom:12px;">
+                <li>Selecciona tu personaje y el del enemigo.</li>
+                <li>Cada jugador comienza con 3 vidas.</li>
+                <li>Elige un ataque: Puño, Embestida, Patada o Barrida.</li>
+                <li>Las combinaciones determinan quién gana cada ronda.</li>
+                <li>¡Gana quien deje sin vidas al rival!</li>
+                <li><strong>Comparativa de ataques:</strong></li>
+                <li>Puño vence a Patada</li>
+                <li>Patada vence a Barrida</li>
+                <li>Barrida vence a Embestida</li>
+                <li>Embestida vence a Puño</li>
+            </ul>
+            <button id="cerrar-reglas" class="btn btn-secundario">Cerrar</button>
+        </div>
+    </div>
+</body>
+
+</html>
+

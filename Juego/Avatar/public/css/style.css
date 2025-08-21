@@ -1,0 +1,494 @@
+/* ---------------  RESET BÁSICO  --------------- */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #f1f1f1;
+    background: url("../img/fondoAvatar.jpg") no-repeat center center fixed;
+    background-size: cover;
+}
+
+/* ---------------  CONTENEDOR GENERAL  --------------- */
+
+.contenedor-juego {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.6); /* Caja semitransparente para legibilidad */
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
+}
+
+/* ---------------  ENCABEZADO / TÍTULO  --------------- */
+
+header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.titulo-juego {
+    font-size: 2.5rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
+    color: #ffdd57; /* Color dorado para resaltar */
+}
+
+/* ---------------  SUBTÍTULOS DE SECCIONES  --------------- */
+
+.subtitulo {
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+    text-align: center;
+    color: #e0e0e0;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* ---------------  PANEL DE SELECCIÓN DE PERSONAJE  --------------- */
+
+#seleccionar-personaje {
+    margin-bottom: 30px;
+}
+
+.personajes {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    margin-bottom: 15px;
+}
+
+.opcion-personaje {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 120px;
+    margin: 10px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 2px solid #ffffff33;
+    border-radius: 8px;
+    padding: 10px;
+    transition: transform 0.2s, background-color 0.2s;
+    cursor: pointer;
+}
+
+.opcion-personaje:hover {
+    transform: scale(1.05);
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.opcion-personaje input[type="radio"] {
+    display: none; /* Ocultar el círculo predeterminado */
+}
+
+.img-personaje {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    margin-bottom: 8px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    transition: border 0.2s;
+}
+
+/* Cuando el radio esté seleccionado, resaltar la imagen */
+.opcion-personaje input[type="radio"]:checked + .img-personaje,
+.opcion-personaje input[type="radio"]:checked + .img-personaje + .nombre-personaje {
+    border-color: #ffaa00;
+}
+
+/* Nombre debajo de la imagen */
+.nombre-personaje {
+    font-size: 1rem;
+    color: #ffffff;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+/* Botón Seleccionar Personaje */
+.btn-primario {
+    display: block;
+    width: 100%;
+    max-width: 200px;
+    margin: 0 auto;
+    padding: 12px 20px;
+    background-color: #ffaa00;
+    color: #1b1b1b;
+    border: none;
+    border-radius: 25px;
+    font-size: 1rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.btn-primario:hover {
+    background-color: #ffcc33;
+    transform: translateY(-2px);
+}
+
+/* ---------------  PANEL DE SELECCIÓN DE ATAQUE  --------------- */
+
+#seleccionar-ataque {
+    margin-bottom: 30px;
+}
+
+.vidas {
+    text-align: center;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+}
+
+.vidas .resaltado {
+    font-weight: bold;
+    color: #ffdd57;
+}
+
+.botones-ataque {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+}
+
+.botones-ataque .btn {
+    flex: 1 1 calc(45% - 10px);
+    margin: 5px;
+    padding: 12px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #b81a1a;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+/* Colores específicos para cada tipo de ataque */
+.btn-puño {
+    background-color: #e63900;
+}
+.btn-puño:hover {
+    background-color: #ff3b00;
+}
+
+.btn-patada {
+    background-color: #1d4e89;
+}
+.btn-patada:hover {
+    background-color: #3a75c4;
+}
+
+.btn-embestida {
+    background-color: #6a994e;
+}
+.btn-embestida:hover {
+    background-color: #8abf78;
+}
+
+.btn-barrida {
+    background-color: #9aa5b1;
+}
+.btn-aire:hover {
+    background-color: #c0c6ce;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 7px rgba(0, 0, 0, 0.4);
+}
+
+/* ---------------  PANEL DE MENSAJES  --------------- */
+
+#mensajes {
+    background-color: rgba(0, 0, 0, 0.4);
+    padding: 15px;
+    border-radius: 8px;
+    min-height: 60px;
+    margin-bottom: 30px;
+}
+
+#texto-mensaje {
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+/* ---------------  PANEL DE REINICIAR  --------------- */
+
+#reiniciar {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.btn-secundario {
+    padding: 10px 18px;
+    background-color: #444;
+    color: #ddd;
+    border: 2px solid #666;
+    border-radius: 20px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.btn-secundario:hover {
+    background-color: #666;
+    color: #fff;
+}
+
+/* ---------------  PANEL DE REGLAS DEL JUEGO  --------------- */
+
+#panel-reglas {
+    border-radius: 12px;
+    background: #f8f9fa;
+    border: 2px solid #1976d2;
+    color: #222;
+    box-shadow: 0 4px 24px #0002;
+    max-width: 340px;
+    min-width: 260px;
+    font-size: 1rem;
+    transition: box-shadow 0.2s;
+}
+
+#panel-reglas h3 {
+    margin-top: 0;
+    color: #1976d2;
+    font-size: 1.2em;
+    letter-spacing: 1px;
+}
+
+#panel-reglas ul {
+    padding-left: 18px;
+    margin-bottom: 12px;
+}
+
+#panel-reglas li {
+    margin-bottom: 7px;
+    line-height: 1.5;
+}
+
+#panel-reglas button {
+    margin-top: 8px;
+    background: #1976d2;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 16px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background 0.2s;
+}
+
+#panel-reglas button:hover {
+    background: #125ea2;
+}
+
+/* ---------------  NUEVO ESTILO PARA REGLAS  --------------- */
+
+#panel-reglas li strong {
+    color: #d32f2f;
+}
+
+/* ---------------  TIPOGRAFÍA ADICIONAL — ADAPTACIONES RESPONSIVAS  --------------- */
+
+@media (max-width: 600px) {
+    .img-personaje {
+        width: 60px;
+        height: 60px;
+    }
+    .opcion-personaje {
+        width: 90px;
+        margin: 6px;
+        padding: 8px;
+    }
+    .subtitulo {
+        font-size: 1.5rem;
+    }
+    .titulo-juego {
+        font-size: 2rem;
+    }
+    .botones-ataque .btn {
+        flex: 1 1 100%;
+        margin: 5px 0;
+    }
+}
+
+/* Resaltado llamativo para personaje seleccionado */
+.opcion-personaje.seleccionado {
+    border: 3px solid #ffaa00;
+    background: linear-gradient(120deg, #fffbe6 70%, #ffe082 100%);
+    box-shadow: 0 0 18px 4px #ffecb3, 0 0 0 4px #ffaa0055;
+    transform: scale(1.08) rotate(-2deg);
+    transition: all 0.25s cubic-bezier(.4,2,.6,1);
+}
+
+/* Panel VS grande y centrado */
+#versus-panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 32px;
+    gap: 40px;
+}
+
+#versus-jugador, #versus-enemigo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: linear-gradient(135deg, #fff 70%, #ffe7b3 100%);
+    border-radius: 18px;
+    box-shadow: 0 4px 18px #0002;
+    padding: 18px 28px;
+    min-width: 180px;
+    transition: transform 0.2s;
+}
+
+#versus-jugador {
+    border: 3px solid #f90;
+}
+#versus-enemigo {
+    border: 3px solid #09f;
+}
+
+#versus-jugador img, #versus-enemigo img {
+    width: 140px;
+    height: 140px;
+    border-radius: 16px;
+    border: 4px solid #fff;
+    box-shadow: 0 2px 12px #0003;
+    background: #eee;
+    object-fit: cover;
+    margin-bottom: 10px;
+}
+
+#nombre-jugador-vs, #nombre-enemigo-vs {
+    font-size: 1.3rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+    margin-top: 6px;
+    color: #222;
+    text-shadow: 0 1px 2px #fff8;
+}
+
+#versus-panel > div:nth-child(2) {
+    font-size: 3.5rem;
+    font-weight: bold;
+    color: #e74c3c;
+    text-shadow: 0 2px 8px #0003;
+    margin: 0 30px;
+    user-select: none;
+}
+
+/* Animación de entrada para las tarjetas VS */
+@keyframes vs-slide-in-left {
+    0% {
+        opacity: 0;
+        transform: translateX(-120px) scale(0.8) rotate(-8deg);
+    }
+    70% {
+        opacity: 1;
+        transform: translateX(10px) scale(1.05) rotate(-2deg);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0) scale(1) rotate(0deg);
+    }
+}
+@keyframes vs-slide-in-right {
+    0% {
+        opacity: 0;
+        transform: translateX(120px) scale(0.8) rotate(8deg);
+    }
+    70% {
+        opacity: 1;
+        transform: translateX(-10px) scale(1.05) rotate(2deg);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0) scale(1) rotate(0deg);
+    }
+}
+
+/* Animación de resplandor para la tarjeta ganadora - más visible */
+@keyframes vs-glow {
+    0% {
+        box-shadow: 0 0 40px 16px #fff700, 0 0 0 8px #ffd600, 0 0 80px 24px #fff70066;
+    }
+    50% {
+        box-shadow: 0 0 90px 36px #fffde4, 0 0 0 16px #ffe082, 0 0 160px 48px #fff70099;
+    }
+    100% {
+        box-shadow: 0 0 40px 16px #fff700, 0 0 0 8px #ffd600, 0 0 80px 24px #fff70066;
+    }
+}
+
+.vs-ganador {
+    box-shadow: 0 0 60px 24px #fff700, 0 0 0 8px #ffd600, 0 0 120px 32px #fff70066;
+    border-color: #ffd600 !important;
+    filter: none;
+    background: linear-gradient(120deg, #fffbe6 70%, #fff176 100%);
+    transition: box-shadow 0.4s, border-color 0.4s, filter 0.4s, background 0.4s;
+    z-index: 2;
+    animation: vs-glow 1.2s infinite alternate;
+}
+
+/* Más opacidad y desenfoque para la tarjeta perdedora */
+.vs-perdedor {
+    opacity: 0.28;
+    filter: grayscale(0.9) blur(2px) brightness(0.8);
+    transition: opacity 0.5s, filter 0.5s;
+    z-index: 1;
+}
+
+/* Botones de ataque llamativos */
+.btn-ataque {
+    font-size: 1.25rem;
+    font-weight: bold;
+    padding: 18px 38px;
+    margin: 0 12px 18px 12px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(120deg, #ffe082 60%, #ffd54f 100%);
+    color: #7c4d00;
+    box-shadow: 0 4px 18px #ffecb3, 0 2px 0 #ffd600;
+    cursor: pointer;
+    transition: transform 0.12s, box-shadow 0.18s, background 0.18s;
+    outline: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-ataque:active {
+    transform: scale(0.96);
+    box-shadow: 0 2px 8px #ffd600;
+    background: linear-gradient(120deg, #ffd54f 60%, #ffe082 100%);
+}
+
+.btn-ataque:disabled {
+    opacity: 0.5;
+    filter: grayscale(0.5);
+    cursor: not-allowed;
+}
+
+/* Efecto de destello al pasar el mouse */
+.btn-ataque::after {
+    content: "";
+    position: absolute;
+    left: -75%;
+    top: 0;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(120deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.0) 100%);
+    transform: skewX(-20deg);
+    transition: left 0.5s;
+    pointer-events: none;
+}
+.btn-ataque:hover::after {
+    left: 120%;
+}
