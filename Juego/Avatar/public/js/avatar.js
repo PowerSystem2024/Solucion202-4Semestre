@@ -15,14 +15,42 @@ let vidasJugador = 3;
 let vidasEnemigo = 3;
 
 // ======================
+// DRY: Función para obtener personaje seleccionado
+// ======================
+function obtenerPersonajeSeleccionado(tipo) {
+    for (let personaje of personajesDisponibles) {
+        if (document.getElementById(`${personaje}-${tipo}`).checked) {
+            return personaje;
+        }
+    }
+    return '';
+}
+
+// ======================
+// DRY: Función para resaltar tarjeta seleccionada
+// ======================
+function resaltarTarjetaSeleccionada(tipo, personaje) {
+    document.querySelectorAll(`.opcion-personaje[for$="-${tipo}"]`).forEach(card => card.classList.remove('seleccionado'));
+    let label = document.querySelector(`label[for="${personaje}-${tipo}"]`);
+    if (label) label.classList.add('seleccionado');
+}
+
+// ======================
+// DRY: Habilitar/deshabilitar botones de ataque
+// ======================
+function setEstadoBotonesAtaque(habilitar) {
+    ["boton-puño", "boton-embestida", "boton-patada", "boton-barrida"].forEach(id => {
+        document.getElementById(id).disabled = !habilitar;
+    });
+}
+
+// ======================
 // 3) INICIALIZAR JUEGO
 // ======================
 function iniciarJuego() {
-    // 3.1) Botón para seleccionar jugador
     document.getElementById("boton-personaje")
             .addEventListener("click", seleccionarPersonajeJugador);
 
-    // 3.3) Botones de ataque (deshabilitados hasta que ambos personajes estén elegidos)
     document.getElementById("boton-puño")
             .addEventListener("click", () => manejarAtaque("PUÑO"));
     document.getElementById("boton-embestida")
@@ -31,18 +59,15 @@ function iniciarJuego() {
             .addEventListener("click", () => manejarAtaque("PATADA"));
     document.getElementById("boton-barrida")
             .addEventListener("click", () => manejarAtaque("BARRIDA"));
-    deshabilitarBotonesAtaque();
+    setEstadoBotonesAtaque(false); // DRY
 
-    // 3.4) Botón de reiniciar
     document.getElementById("boton-reiniciar")
             .addEventListener("click", reiniciarJuego);
 
-    // 3.5) Al cargar: ocultamos secciones hasta tener ambos personajes
     document.getElementById("seleccionar-ataque").style.display = 'none';
     document.getElementById("mensajes").style.display = 'none';
     document.getElementById("reiniciar").style.display = 'none';
 
-    // Mostrar y ocultar reglas del juego
     document.getElementById("boton-reglas").addEventListener("click", function() {
         document.getElementById("panel-reglas").style.display = "block";
     });
@@ -50,7 +75,6 @@ function iniciarJuego() {
         document.getElementById("panel-reglas").style.display = "none";
     });
 
-    // Crear y ocultar el botón "Luchar"
     let btnLuchar = document.createElement("button");
     btnLuchar.id = "boton-luchar";
     btnLuchar.className = "btn btn-primario";
@@ -65,7 +89,6 @@ function iniciarJuego() {
     });
 }
 
-// Ejecutamos iniciarJuego
 window.addEventListener('load', iniciarJuego);
 
 // ======================
@@ -73,48 +96,26 @@ window.addEventListener('load', iniciarJuego);
 // ======================
 function seleccionarPersonajeJugador() {
     let spanPJ = document.getElementById('personaje-jugador');
+    personajeJugador = obtenerPersonajeSeleccionado('jugador'); // DRY
 
-    if (document.getElementById("Zuko-jugador").checked) {
-        personajeJugador = 'Zuko';
-    } else if (document.getElementById("Katara-jugador").checked) {
-        personajeJugador = 'Katara';
-    } else if (document.getElementById("Aang-jugador").checked) {
-        personajeJugador = 'Aang';
-    } else if (document.getElementById("Toph-jugador").checked) {
-        personajeJugador = 'Toph';
-    } else {
+    if (!personajeJugador) {
         alert("Por favor, selecciona un personaje para ti.");
         return;
     }
 
-    // Mostrar el personaje elegido
     spanPJ.innerText = personajeJugador;
-
-    // Deshabilitar radios de jugador
     document.getElementById("boton-personaje").disabled = true;
     document.getElementsByName("personaje-jugador")
         .forEach(radio => radio.disabled = true);
 
-    // Quitar resaltado solo de las tarjetas de jugador
-    document.querySelectorAll('.opcion-personaje[for$="-jugador"]').forEach(card => card.classList.remove('seleccionado'));
-    // Resaltar la tarjeta seleccionada de jugador
-    let label = document.querySelector(`label[for="${personajeJugador}-jugador"]`);
-    if (label) label.classList.add('seleccionado');
+    resaltarTarjetaSeleccionada('jugador', personajeJugador); // DRY
 
-    // Selección aleatoria del enemigo (que no sea el mismo que el jugador)
     const posiblesEnemigos = personajesDisponibles.filter(p => p !== personajeJugador);
     personajeEnemigo = posiblesEnemigos[Math.floor(Math.random() * posiblesEnemigos.length)];
 
-    // Mostrar en pantalla el enemigo elegido
     document.getElementById("personaje-enemigo").innerText = personajeEnemigo;
+    resaltarTarjetaSeleccionada('enemigo', personajeEnemigo); // DRY
 
-    // Quitar resaltado solo de las tarjetas de enemigo
-    document.querySelectorAll('.opcion-personaje[for$="-enemigo"]').forEach(card => card.classList.remove('seleccionado'));
-    // Resaltar la tarjeta seleccionada de enemigo
-    let labelEnemigo = document.querySelector(`label[for="${personajeEnemigo}-enemigo"]`);
-    if (labelEnemigo) labelEnemigo.classList.add('seleccionado');
-
-    // Mostrar el botón "Luchar"
     document.getElementById("boton-luchar").style.display = "block";
 }
 
@@ -122,37 +123,21 @@ function seleccionarPersonajeJugador() {
 // 5) SELECCIÓN DEL PERSONAJE ENEMIGO 
 // ======================
 function seleccionarPersonajeEnemigo() {
-    // 5.1) Leemos qué radio de “personaje-enemigo” está chequeado
     let spanPE = document.getElementById('personaje-enemigo');
+    personajeEnemigo = obtenerPersonajeSeleccionado('enemigo'); // DRY
 
-    if (document.getElementById("Zuko-enemigo").checked) {
-        personajeEnemigo = 'Zuko';
-    } else if (document.getElementById("Katara-enemigo").checked) {
-        personajeEnemigo = 'Katara';
-    } else if (document.getElementById("Aang-enemigo").checked) {
-        personajeEnemigo = 'Aang';
-    } else if (document.getElementById("Toph-enemigo").checked) {
-        personajeEnemigo = 'Toph';
-    } else {
+    if (!personajeEnemigo) {
         alert("Por favor, selecciona un personaje para el enemigo.");
         return;
     }
 
-    // Mostramos en la pantalla cuál fue el elegido
     spanPE.innerText = personajeEnemigo;
-
-    // Deshabilitamos sus radios para no cambiar a mitad de proceso
     document.getElementById("boton-enemigo").disabled = true;
     document.getElementsByName("personaje-enemigo")
             .forEach(radio => radio.disabled = true);
 
-    // Quitar resaltado solo de las tarjetas de enemigo
-    document.querySelectorAll('.opcion-personaje[for$="-enemigo"]').forEach(card => card.classList.remove('seleccionado'));
-    // Resaltar la tarjeta seleccionada de enemigo
-    let label = document.querySelector(`label[for="${personajeEnemigo}-enemigo"]`);
-    if (label) label.classList.add('seleccionado');
+    resaltarTarjetaSeleccionada('enemigo', personajeEnemigo); // DRY
 
-    // Si el jugador ya estaba seleccionado antes, mostramos los paneles
     if (personajeJugador !== '') {
         mostrarPanelAtaque();
     }
@@ -162,12 +147,10 @@ function seleccionarPersonajeEnemigo() {
 // 6) MOSTRAR PANEL DE ATAQUE SI AMBOS PERSONAJES ESTÁN ELEGIDOS
 // ======================
 function mostrarPanelAtaque() {
-    // Mostrar paneles
     document.getElementById("seleccionar-ataque").style.display = 'block';
     document.getElementById("mensajes").style.display = 'block';
     document.getElementById("reiniciar").style.display = 'block';
 
-    // Mostrar imágenes y nombres en el panel VS
     const imagenes = {
         Zuko: "./img/zuko.jpg",
         Katara: "./img/katara.jpg",
@@ -182,57 +165,38 @@ function mostrarPanelAtaque() {
     document.getElementById("img-enemigo-vs").alt = personajeEnemigo;
     document.getElementById("nombre-enemigo-vs").innerText = personajeEnemigo;
 
-    // Quitar resaltado ganador/perdedor al mostrar el panel VS
     document.getElementById("versus-jugador").classList.remove("vs-ganador", "vs-perdedor");
     document.getElementById("versus-enemigo").classList.remove("vs-ganador", "vs-perdedor");
 
-    // --- REINICIAR ANIMACIÓN DE ENTRADA ---
     const vj = document.getElementById("versus-jugador");
     const ve = document.getElementById("versus-enemigo");
     vj.style.animation = "none";
     ve.style.animation = "none";
-    // Forzar reflow
     void vj.offsetWidth;
     void ve.offsetWidth;
     vj.style.animation = "vs-slide-in-left 0.7s cubic-bezier(.5,1.5,.5,1) both";
     ve.style.animation = "vs-slide-in-right 0.7s cubic-bezier(.5,1.5,.5,1) both";
 
-    // Actualizamos las vidas y habilitamos los botones de ataque
     actualizarVidasEnPantalla();
-    habilitarBotonesAtaque();
+    setEstadoBotonesAtaque(true); // DRY
 }
 
 // ======================
 // 7) HABILITAR / DESHABILITAR BOTONES DE ATAQUE
 // ======================
-function habilitarBotonesAtaque() {
-    document.getElementById("boton-puño").disabled = false;
-    document.getElementById("boton-embestida").disabled = false;
-    document.getElementById("boton-patada").disabled = false;
-    document.getElementById("boton-barrida").disabled = false;
-}
-
-function deshabilitarBotonesAtaque() {
-    document.getElementById("boton-puño").disabled = true;
-    document.getElementById("boton-embestida").disabled = true;
-    document.getElementById("boton-patada").disabled = true;
-    document.getElementById("boton-barrida").disabled = true;
-}
+// Reemplazado por setEstadoBotonesAtaque(habilitar) // DRY
 
 // ======================
 // 8) MANEJAR ATAQUE DEL JUGADOR
 // ======================
 function manejarAtaque(ataqueJugador) {
-   
     if (vidasJugador <= 0 || vidasEnemigo <= 0) return;
     if (personajeJugador === '' || personajeEnemigo === '') return;
 
-    // Generar ataque enemigo al azar (solo la parte de combate, no para personaje)
     const ataques = ['PUÑO', 'EMBESTIDA', 'PATADA', 'BARRIDA'];
     const indice = Math.floor(Math.random() * ataques.length);
     const ataqueEnemigo = ataques[indice];
 
-    // Comparamos los ataques
     compararAtaques(ataqueJugador, ataqueEnemigo);
 }
 
@@ -260,13 +224,9 @@ function compararAtaques(ataqueJugador, ataqueEnemigo) {
         }
     }
 
-    // Actualizar vidas en pantalla
     actualizarVidasEnPantalla();
-
-    // Mostrar mensaje en el panel inferior
     document.getElementById("texto-mensaje").innerText = mensaje;
 
-    // Si alguien llega a 0, finalizamos
     if (vidasJugador <= 0 || vidasEnemigo <= 0) {
         finalizarJuego();
     }
@@ -284,14 +244,12 @@ function actualizarVidasEnPantalla() {
 // 11) FINALIZAR JUEGO
 // ======================
 function finalizarJuego() {
-    deshabilitarBotonesAtaque();
+    setEstadoBotonesAtaque(false); // DRY
     const textoFinal = document.getElementById("texto-mensaje");
 
-    // Quita clases previas
     document.getElementById("versus-jugador").classList.remove("vs-ganador", "vs-perdedor");
     document.getElementById("versus-enemigo").classList.remove("vs-ganador", "vs-perdedor");
 
-    // --- REINICIAR ANIMACIÓN DE RESPLANDOR ---
     const vj = document.getElementById("versus-jugador");
     const ve = document.getElementById("versus-enemigo");
     vj.style.animation = "";
@@ -312,46 +270,37 @@ function finalizarJuego() {
 // 12) REINICIAR JUEGO
 // ======================
 function reiniciarJuego() {
-    // Quitar resaltado de todas las tarjetas de personajes
     document.querySelectorAll('.opcion-personaje').forEach(card => card.classList.remove('seleccionado'));
 
-    // 12.1) Restablecer variables
     personajeJugador = '';
     personajeEnemigo = '';
     vidasJugador = 3;
     vidasEnemigo = 3;
 
-    // 12.2) Limpiar textos y spans
     document.getElementById("personaje-jugador").innerText = "";
     document.getElementById("personaje-enemigo").innerText = "";
     document.getElementById("vidas-jugador").innerText = vidasJugador;
     document.getElementById("vidas-enemigo").innerText = vidasEnemigo;
     document.getElementById("texto-mensaje").innerText = "";
 
-    // 12.3) Ocultar paneles de ataque, mensajes y reinicio
     document.getElementById("seleccionar-ataque").style.display = 'none';
     document.getElementById("mensajes").style.display = 'none';
     document.getElementById("reiniciar").style.display = 'none';
 
-    // 12.4) Reactivar los botones de selección de personaje
     document.getElementById("boton-personaje").disabled = false;
     document.getElementsByName("personaje-jugador").forEach(radio => {
         radio.checked = false;
         radio.disabled = false;
     });
 
-    // 12.5) Deshabilitar nuevamente los botones de ataque
-    deshabilitarBotonesAtaque();
+    setEstadoBotonesAtaque(false); // DRY
 
-    // Ocultar el botón "Luchar"
     let btnLuchar = document.getElementById("boton-luchar");
     if (btnLuchar) btnLuchar.style.display = "none";
 
-    // Mostrar paneles de selección
     document.getElementById("seleccionar-personaje").style.display = "block";
     document.getElementById("seleccionar-enemigo").style.display = "block";
 
-    // Quitar resaltado ganador/perdedor al reiniciar
     document.getElementById("versus-jugador").classList.remove("vs-ganador", "vs-perdedor");
     document.getElementById("versus-enemigo").classList.remove("vs-ganador", "vs-perdedor");
 }
