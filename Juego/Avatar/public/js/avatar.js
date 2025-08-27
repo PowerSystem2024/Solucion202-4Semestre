@@ -21,7 +21,12 @@ const estadoJuego = {
         Aang: "./img/Aang.jpg",
         Toph: "./img/toph.jpeg"
     },
-    ataques: ['PUÑO', 'EMBESTIDA', 'PATADA', 'BARRIDA']
+    ataques: ['PUÑO', 'EMBESTIDA', 'PATADA', 'BARRIDA'],
+    probabilidades: {
+        critico: 0.15,    // 15% de probabilidad de ataque crítico
+        recuperacion: 0.05 // 5% de probabilidad de recuperar vida
+    },
+    vidasIniciales: 3
 };
 
 // ======================
@@ -241,7 +246,25 @@ function compararAtaques(ataqueJugador, ataqueEnemigo) {
     let mensaje = "";
 
     if (ataqueJugador === ataqueEnemigo) {
-        mensaje = `¡EMPATE! Ambos usaron ${ataqueJugador}.`;
+        // Chance de recuperación en empate
+        if (Math.random() < estadoJuego.probabilidades.recuperacion) {
+            // Recuperar vida del jugador
+            if (estadoJuego.vidas.jugador < estadoJuego.vidasIniciales) {
+                estadoJuego.vidas.jugador = estadoJuego.vidasIniciales;
+                mensaje = `💫 ¡INCREÍBLE! ${estadoJuego.personajes.jugador} se ha motivado y recuperó toda su vida! 💫`;
+                const textoMensaje = document.getElementById("texto-mensaje");
+                textoMensaje.style.color = "#00ff00";
+                textoMensaje.style.fontSize = "1.2em";
+                setTimeout(() => {
+                    textoMensaje.style.color = "";
+                    textoMensaje.style.fontSize = "";
+                }, 1000);
+            } else {
+                mensaje = `¡EMPATE! Ambos usaron ${ataqueJugador}.`;
+            }
+        } else {
+            mensaje = `¡EMPATE! Ambos usaron ${ataqueJugador}.`;
+        }
     } else {
         const ganaJugador =
             (ataqueJugador === "PUÑO" && ataqueEnemigo === "PATADA") ||
@@ -249,12 +272,39 @@ function compararAtaques(ataqueJugador, ataqueEnemigo) {
             (ataqueJugador === "BARRIDA" && ataqueEnemigo === "EMBESTIDA") ||
             (ataqueJugador === "EMBESTIDA" && ataqueEnemigo === "PUÑO");
 
+        // Determinar si es un ataque crítico
+        const esCritico = Math.random() < estadoJuego.probabilidades.critico;
+        const dañoBase = 1;
+        const daño = esCritico ? 2 : dañoBase;
+
         if (ganaJugador) {
-            estadoJuego.vidas.enemigo--;
-            mensaje = `¡GANASTE! Tu ${ataqueJugador} derrotó a ${ataqueEnemigo}.`;
+            estadoJuego.vidas.enemigo -= daño;
+            const textoMensaje = document.getElementById("texto-mensaje");
+            mensaje = esCritico ? 
+                `⚡ ¡GOLPE CRÍTICO! Tu ${ataqueJugador} causó ${daño} de daño a ${estadoJuego.personajes.enemigo}! ⚡` :
+                `¡GANASTE! Tu ${ataqueJugador} derrotó a ${ataqueEnemigo}.`;
+            if (esCritico) {
+                textoMensaje.style.color = "#ff6b00";
+                textoMensaje.style.fontSize = "1.2em";
+                setTimeout(() => {
+                    textoMensaje.style.color = "";
+                    textoMensaje.style.fontSize = "";
+                }, 1000);
+            }
         } else {
-            estadoJuego.vidas.jugador--;
-            mensaje = `¡PERDISTE! Tu ${ataqueJugador} fue vencido por ${ataqueEnemigo}.`;
+            estadoJuego.vidas.jugador -= daño;
+            const textoMensaje = document.getElementById("texto-mensaje");
+            mensaje = esCritico ? 
+                `⚡ ¡GOLPE CRÍTICO RECIBIDO! El ${ataqueEnemigo} de ${estadoJuego.personajes.enemigo} causó ${daño} de daño! ⚡` :
+                `¡PERDISTE! Tu ${ataqueJugador} fue vencido por ${ataqueEnemigo}.`;
+            if (esCritico) {
+                textoMensaje.style.color = "#ff0000";
+                textoMensaje.style.fontSize = "1.2em";
+                setTimeout(() => {
+                    textoMensaje.style.color = "";
+                    textoMensaje.style.fontSize = "";
+                }, 1000);
+            }
         }
     }
 
@@ -308,8 +358,8 @@ function reiniciarJuego() {
 
     estadoJuego.personajes.jugador = '';
     estadoJuego.personajes.enemigo = '';
-    estadoJuego.vidas.jugador = 3;
-    estadoJuego.vidas.enemigo = 3;
+    estadoJuego.vidas.jugador = estadoJuego.vidasIniciales;
+    estadoJuego.vidas.enemigo = estadoJuego.vidasIniciales;
 
     document.getElementById("personaje-jugador").innerText = "";
     document.getElementById("personaje-enemigo").innerText = "";
