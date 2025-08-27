@@ -6,13 +6,23 @@ const personajesDisponibles = ['Zuko', 'Katara', 'Aang', 'Toph'];
 // ======================
 // 2) VARIABLES GLOBALES
 // ======================
-
-let personajeJugador = '';
-let personajeEnemigo = '';
-
-// Vidas iniciales
-let vidasJugador = 3;
-let vidasEnemigo = 3;
+const estadoJuego = {
+    personajes: {
+        jugador: '',
+        enemigo: ''
+    },
+    vidas: {
+        jugador: 3,
+        enemigo: 3
+    },
+    imagenes: {
+        Zuko: "./img/zuko.jpg",
+        Katara: "./img/katara.jpg",
+        Aang: "./img/Aang.jpg",
+        Toph: "./img/toph.jpeg"
+    },
+    ataques: ['PUÑO', 'EMBESTIDA', 'PATADA', 'BARRIDA']
+};
 
 // ======================
 // DRY: Función para obtener personaje seleccionado
@@ -83,9 +93,41 @@ function iniciarJuego() {
     document.getElementById("seleccionar-enemigo").appendChild(btnLuchar);
 
     btnLuchar.addEventListener("click", function () {
-        document.getElementById("seleccionar-personaje").style.display = "none";
-        document.getElementById("seleccionar-enemigo").style.display = "none";
-        mostrarPanelAtaque();
+        // Verificar si se seleccionó manualmente un enemigo
+        estadoJuego.personajes.enemigo = obtenerPersonajeSeleccionado('enemigo');
+        
+        // Si no se seleccionó un enemigo, elegir uno aleatorio
+        if (!estadoJuego.personajes.enemigo) {
+            const posiblesEnemigos = personajesDisponibles.filter(p => p !== estadoJuego.personajes.jugador);
+            estadoJuego.personajes.enemigo = posiblesEnemigos[Math.floor(Math.random() * posiblesEnemigos.length)];
+            // Marcar el radio button del enemigo seleccionado aleatoriamente
+            const radioEnemigo = document.getElementById(`${estadoJuego.personajes.enemigo}-enemigo`);
+            if (radioEnemigo) {
+                radioEnemigo.checked = true;
+            }
+        }
+
+        // Actualizar la interfaz con el enemigo seleccionado
+        document.getElementById("personaje-enemigo").innerText = estadoJuego.personajes.enemigo;
+        
+        // Aplicar animación al enemigo
+        const labelEnemigo = document.querySelector(`label[for="${estadoJuego.personajes.enemigo}-enemigo"]`);
+        if (labelEnemigo) {
+            labelEnemigo.style.animation = "vs-slide-in-right 0.7s cubic-bezier(.5,1.5,.5,1) both";
+        }
+        
+        // Resaltar la tarjeta del enemigo
+        resaltarTarjetaSeleccionada('enemigo', estadoJuego.personajes.enemigo);
+        
+        // Deshabilitar la selección una vez que se inicia la lucha
+        document.getElementsByName("personaje-enemigo").forEach(radio => radio.disabled = true);
+        
+        // Esperar a que termine la animación antes de continuar
+        setTimeout(() => {
+            document.getElementById("seleccionar-personaje").style.display = "none";
+            document.getElementById("seleccionar-enemigo").style.display = "none";
+            mostrarPanelAtaque();
+        }, 600); // Esperar un poco más que la duración de la animación
     });
 }
 
@@ -96,86 +138,79 @@ window.addEventListener('load', iniciarJuego);
 // ======================
 function seleccionarPersonajeJugador() {
     let spanPJ = document.getElementById('personaje-jugador');
-    personajeJugador = obtenerPersonajeSeleccionado('jugador'); // DRY
+    estadoJuego.personajes.jugador = obtenerPersonajeSeleccionado('jugador'); // DRY
 
-    if (!personajeJugador) {
+    if (!estadoJuego.personajes.jugador) {
         alert("Por favor, selecciona un personaje para ti.");
         return;
     }
 
-    spanPJ.innerText = personajeJugador;
+    spanPJ.innerText = estadoJuego.personajes.jugador;
     document.getElementById("boton-personaje").disabled = true;
     document.getElementsByName("personaje-jugador")
         .forEach(radio => radio.disabled = true);
 
-    resaltarTarjetaSeleccionada('jugador', personajeJugador); // DRY
+    // Aplicar animación de selección al jugador
+    resaltarTarjetaSeleccionada('jugador', estadoJuego.personajes.jugador); // DRY
 
-    const posiblesEnemigos = personajesDisponibles.filter(p => p !== personajeJugador);
-    personajeEnemigo = posiblesEnemigos[Math.floor(Math.random() * posiblesEnemigos.length)];
+    // Mostrar botón de luchar y aplicar la misma animación que antes
+    const btnLuchar = document.getElementById("boton-luchar");
+    btnLuchar.style.display = "block";
 
-    document.getElementById("personaje-enemigo").innerText = personajeEnemigo;
-    resaltarTarjetaSeleccionada('enemigo', personajeEnemigo); // DRY
+    // Aplicar animación cuando se selecciona el personaje del jugador
+    const labelJugador = document.querySelector(`label[for="${estadoJuego.personajes.jugador}-jugador"]`);
+    if (labelJugador) {
+        labelJugador.style.animation = "vs-slide-in-left 0.7s cubic-bezier(.5,1.5,.5,1) both";
+    }
 
     document.getElementById("boton-luchar").style.display = "block";
 }
 
-// ======================
-// 5) SELECCIÓN DEL PERSONAJE ENEMIGO 
-// ======================
-function seleccionarPersonajeEnemigo() {
-    let spanPE = document.getElementById('personaje-enemigo');
-    personajeEnemigo = obtenerPersonajeSeleccionado('enemigo'); // DRY
-
-    if (!personajeEnemigo) {
-        alert("Por favor, selecciona un personaje para el enemigo.");
-        return;
-    }
-
-    spanPE.innerText = personajeEnemigo;
-    document.getElementById("boton-enemigo").disabled = true;
-    document.getElementsByName("personaje-enemigo")
-            .forEach(radio => radio.disabled = true);
-
-    resaltarTarjetaSeleccionada('enemigo', personajeEnemigo); // DRY
-
-    if (personajeJugador !== '') {
-        mostrarPanelAtaque();
-    }
-}
+// La selección del enemigo ahora se maneja automáticamente en seleccionarPersonajeJugador()
 
 // ======================
 // 6) MOSTRAR PANEL DE ATAQUE SI AMBOS PERSONAJES ESTÁN ELEGIDOS
 // ======================
 function mostrarPanelAtaque() {
+    // Obtener elementos VS una sola vez
+    const vj = document.getElementById("versus-jugador");
+    const ve = document.getElementById("versus-enemigo");
+    
+    // Mostrar paneles necesarios
     document.getElementById("seleccionar-ataque").style.display = 'block';
     document.getElementById("mensajes").style.display = 'block';
     document.getElementById("reiniciar").style.display = 'block';
 
-    const imagenes = {
-        Zuko: "./img/zuko.jpg",
-        Katara: "./img/katara.jpg",
-        Aang: "./img/Aang.jpg",
-        Toph: "./img/toph.jpeg"
-    };
-    document.getElementById("img-jugador-vs").src = imagenes[personajeJugador];
-    document.getElementById("img-jugador-vs").alt = personajeJugador;
-    document.getElementById("nombre-jugador-vs").innerText = personajeJugador;
+    // Actualizar imágenes y nombres
+    document.getElementById("img-jugador-vs").src = estadoJuego.imagenes[estadoJuego.personajes.jugador];
+    document.getElementById("img-jugador-vs").alt = estadoJuego.personajes.jugador;
+    document.getElementById("nombre-jugador-vs").innerText = estadoJuego.personajes.jugador;
 
-    document.getElementById("img-enemigo-vs").src = imagenes[personajeEnemigo];
-    document.getElementById("img-enemigo-vs").alt = personajeEnemigo;
-    document.getElementById("nombre-enemigo-vs").innerText = personajeEnemigo;
+    document.getElementById("img-enemigo-vs").src = estadoJuego.imagenes[estadoJuego.personajes.enemigo];
+    document.getElementById("img-enemigo-vs").alt = estadoJuego.personajes.enemigo;
+    document.getElementById("nombre-enemigo-vs").innerText = estadoJuego.personajes.enemigo;
 
-    document.getElementById("versus-jugador").classList.remove("vs-ganador", "vs-perdedor");
-    document.getElementById("versus-enemigo").classList.remove("vs-ganador", "vs-perdedor");
-
-    const vj = document.getElementById("versus-jugador");
-    const ve = document.getElementById("versus-enemigo");
+    // Limpiar clases y animaciones previas
+    vj.classList.remove("vs-ganador", "vs-perdedor");
+    ve.classList.remove("vs-ganador", "vs-perdedor");
     vj.style.animation = "none";
     ve.style.animation = "none";
-    void vj.offsetWidth;
-    void ve.offsetWidth;
-    vj.style.animation = "vs-slide-in-left 0.7s cubic-bezier(.5,1.5,.5,1) both";
-    ve.style.animation = "vs-slide-in-right 0.7s cubic-bezier(.5,1.5,.5,1) both";
+    
+    // Posicionar elementos fuera de la pantalla
+    vj.style.transform = "translateX(-100%)";
+    ve.style.transform = "translateX(100%)";
+    
+    // Forzar un reflow/repaint
+    vj.offsetHeight;
+    ve.offsetHeight;
+    
+    // Aplicar nuevas animaciones
+    requestAnimationFrame(() => {
+        vj.style.transform = "";
+        ve.style.transform = "";
+        vj.style.animation = "vs-slide-in-left 0.7s cubic-bezier(.5,1.5,.5,1) both";
+        ve.style.animation = "vs-slide-in-right 0.7s cubic-bezier(.5,1.5,.5,1) both";
+    });
 
     actualizarVidasEnPantalla();
     setEstadoBotonesAtaque(true); // DRY
@@ -190,12 +225,11 @@ function mostrarPanelAtaque() {
 // 8) MANEJAR ATAQUE DEL JUGADOR
 // ======================
 function manejarAtaque(ataqueJugador) {
-    if (vidasJugador <= 0 || vidasEnemigo <= 0) return;
-    if (personajeJugador === '' || personajeEnemigo === '') return;
+    if (estadoJuego.vidas.jugador <= 0 || estadoJuego.vidas.enemigo <= 0) return;
+    if (estadoJuego.personajes.jugador === '' || estadoJuego.personajes.enemigo === '') return;
 
-    const ataques = ['PUÑO', 'EMBESTIDA', 'PATADA', 'BARRIDA'];
-    const indice = Math.floor(Math.random() * ataques.length);
-    const ataqueEnemigo = ataques[indice];
+    const indice = Math.floor(Math.random() * estadoJuego.ataques.length);
+    const ataqueEnemigo = estadoJuego.ataques[indice];
 
     compararAtaques(ataqueJugador, ataqueEnemigo);
 }
@@ -216,10 +250,10 @@ function compararAtaques(ataqueJugador, ataqueEnemigo) {
             (ataqueJugador === "EMBESTIDA" && ataqueEnemigo === "PUÑO");
 
         if (ganaJugador) {
-            vidasEnemigo--;
+            estadoJuego.vidas.enemigo--;
             mensaje = `¡GANASTE! Tu ${ataqueJugador} derrotó a ${ataqueEnemigo}.`;
         } else {
-            vidasJugador--;
+            estadoJuego.vidas.jugador--;
             mensaje = `¡PERDISTE! Tu ${ataqueJugador} fue vencido por ${ataqueEnemigo}.`;
         }
     }
@@ -227,7 +261,7 @@ function compararAtaques(ataqueJugador, ataqueEnemigo) {
     actualizarVidasEnPantalla();
     document.getElementById("texto-mensaje").innerText = mensaje;
 
-    if (vidasJugador <= 0 || vidasEnemigo <= 0) {
+    if (estadoJuego.vidas.jugador <= 0 || estadoJuego.vidas.enemigo <= 0) {
         finalizarJuego();
     }
 }
@@ -236,8 +270,8 @@ function compararAtaques(ataqueJugador, ataqueEnemigo) {
 // 10) ACTUALIZAR VIDAS EN EL HTML
 // ======================
 function actualizarVidasEnPantalla() {
-    document.getElementById("vidas-jugador").innerText = vidasJugador;
-    document.getElementById("vidas-enemigo").innerText = vidasEnemigo;
+    document.getElementById("vidas-jugador").innerText = estadoJuego.vidas.jugador;
+    document.getElementById("vidas-enemigo").innerText = estadoJuego.vidas.enemigo;
 }
 
 // ======================
@@ -255,12 +289,12 @@ function finalizarJuego() {
     vj.style.animation = "";
     ve.style.animation = "";
 
-    if (vidasJugador <= 0) {
-        textoFinal.innerText = `¡HAS SIDO DERROTADO! ${personajeEnemigo} se impuso.`;
+    if (estadoJuego.vidas.jugador <= 0) {
+        textoFinal.innerText = `¡HAS SIDO DERROTADO! ${estadoJuego.personajes.enemigo} se impuso.`;
         document.getElementById("versus-jugador").classList.add("vs-perdedor");
         document.getElementById("versus-enemigo").classList.add("vs-ganador");
-    } else if (vidasEnemigo <= 0) {
-        textoFinal.innerText = `¡FELICITACIONES! ${personajeJugador} ganó la batalla.`;
+    } else if (estadoJuego.vidas.enemigo <= 0) {
+        textoFinal.innerText = `¡FELICITACIONES! ${estadoJuego.personajes.jugador} ganó la batalla.`;
         document.getElementById("versus-jugador").classList.add("vs-ganador");
         document.getElementById("versus-enemigo").classList.add("vs-perdedor");
     }
@@ -272,15 +306,15 @@ function finalizarJuego() {
 function reiniciarJuego() {
     document.querySelectorAll('.opcion-personaje').forEach(card => card.classList.remove('seleccionado'));
 
-    personajeJugador = '';
-    personajeEnemigo = '';
-    vidasJugador = 3;
-    vidasEnemigo = 3;
+    estadoJuego.personajes.jugador = '';
+    estadoJuego.personajes.enemigo = '';
+    estadoJuego.vidas.jugador = 3;
+    estadoJuego.vidas.enemigo = 3;
 
     document.getElementById("personaje-jugador").innerText = "";
     document.getElementById("personaje-enemigo").innerText = "";
-    document.getElementById("vidas-jugador").innerText = vidasJugador;
-    document.getElementById("vidas-enemigo").innerText = vidasEnemigo;
+    document.getElementById("vidas-jugador").innerText = estadoJuego.vidas.jugador;
+    document.getElementById("vidas-enemigo").innerText = estadoJuego.vidas.enemigo;
     document.getElementById("texto-mensaje").innerText = "";
 
     document.getElementById("seleccionar-ataque").style.display = 'none';
