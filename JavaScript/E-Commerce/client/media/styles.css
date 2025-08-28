@@ -12,7 +12,7 @@
     flex-wrap: wrap;
 }
 
-.card-products image {
+.card-products img {
     margin-top: 40px;
     width: 250px;
     height: 250px;
@@ -30,5 +30,151 @@
 }
 
 .card-products button:hover {
-    opacity: 0,7;
+    opacity: 0.7;
+}
+
+/* Card button */
+.cart-btn {
+    position: fixed;
+    top: 90px;
+    right: 40px;
+    background-color: rgb(25, 25, 25);
+    padding: 10px;
+    border-radius: 50%;
+    height: 24px;
+    width: 24px;
+    transition: transform 0.2s ease-in-out;
+}
+
+.cart-btn:hover {
+    opacity: 0.9;
+    cursor: pointer;
+    transform: scale(1.1);
+}
+
+/* Modal */
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1;
+}
+
+.modal-container {
+    display: none;
+    background-color: #ffffff;
+    box-shadow: 0px 3px 6px #00000029;
+    padding: 40px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 500px;
+    width: 100%;
+    z-index: 1;
+    max-height: 80vh;
+    overflow: auto;
+}
+
+.modal-container::-webkit-scrollbar {
+    display: none;
+}
+
+.modal-close {
+    float: right;
+    cursor: pointer;
+}
+
+.modal-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Modal Body */
+.modal-body {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.product {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.product-img {
+    height: 80px;
+    margin-right: 20px;
+    width: 80px;
+}
+
+.product-info {
+    flex: 1;
+    text-align: left;
+}
+
+.quantity {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 10px;
+    margin-right: 4em;
+}
+
+.quantity-btn-decrease, .quantity-btn-increase {
+    color: #333333;
+    cursor: pointer;
+    font-size: 16px;
+    width: 28px;
+    font-weight: bold;
+}
+
+.quantity-input {
+    color:#333333;
+    font-size: 16px;
+    padding: 10 10px;
+    text-align: center;
+    width: 50px;
+    font-weight: bold;
+}
+
+@media only screen and (max-width: 500px) {
+    .modal-body {
+        margin-right: 5px;
+        margin-left: 5px;
+    }
+    .product-img {
+        display: none;
+    }
+}
+
+.price {
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: 20px;
+}
+
+.delete-product {
+    margin-top: 20px;
+    margin-left: 2em;
+    cursor: pointer;
+}
+
+.modal-footer {
+    text-align: center;
+}
+
+.total-price {
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: 20px;
+    margin-bottom: 10px;
 }
