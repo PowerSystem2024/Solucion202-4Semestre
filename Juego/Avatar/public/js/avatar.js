@@ -1,58 +1,75 @@
 // ======================
-// 1) LISTA DE PERSONAJES 
+// CLASE PERSONAJE (POO)
 // ======================
-const personajesDisponibles = ['Zuko', 'Katara', 'Aang', 'Toph'];
+class Personaje {
+    constructor(nombre, imagen, ataques, vidasIniciales = 6) {
+        this.nombre = nombre;
+        this.imagen = imagen;
+        this.ataques = ataques;
+        this.vidas = vidasIniciales;
+        this.vidasIniciales = vidasIniciales;
+    }
+
+    recibirDaño(puntos) {
+        this.vidas -= puntos;
+        if (this.vidas < 0) this.vidas = 0;
+    }
+
+    recuperarVidaCompleta() {
+        this.vidas = this.vidasIniciales;
+    }
+
+    ataqueAleatorio() {
+        const indice = Math.floor(Math.random() * this.ataques.length);
+        return this.ataques[indice];
+    }
+
+    estaVivo() {
+        return this.vidas > 0;
+    }
+}
 
 // ======================
-// 2) VARIABLES GLOBALES
+// DATOS DEL JUEGO
 // ======================
+const ataquesDisponibles = ['PUÑO', 'EMBESTIDA', 'PATADA', 'BARRIDA'];
+
+const personajesDisponibles = [
+    new Personaje("Zuko", "./img/zuko.jpg", ataquesDisponibles),
+    new Personaje("Katara", "./img/katara.jpg", ataquesDisponibles),
+    new Personaje("Aang", "./img/Aang.jpg", ataquesDisponibles),
+    new Personaje("Toph", "./img/toph.jpeg", ataquesDisponibles)
+];
+
 const estadoJuego = {
     personajes: {
-        jugador: '',
-        enemigo: ''
+        jugador: null,
+        enemigo: null
     },
-    vidas: {
-        jugador: 3,
-        enemigo: 3
-    },
-    imagenes: {
-        Zuko: "./img/zuko.jpg",
-        Katara: "./img/katara.jpg",
-        Aang: "./img/Aang.jpg",
-        Toph: "./img/toph.jpeg"
-    },
-    ataques: ['PUÑO', 'EMBESTIDA', 'PATADA', 'BARRIDA'],
     probabilidades: {
-        critico: 0.15,    // 15% de probabilidad de ataque crítico
-        recuperacion: 0.05 // 5% de probabilidad de recuperar vida
-    },
-    vidasIniciales: 3
+        critico: 0.15,
+        recuperacion: 0.05
+    }
 };
 
 // ======================
-// DRY: Función para obtener personaje seleccionado
+// FUNCIONES DRY
 // ======================
 function obtenerPersonajeSeleccionado(tipo) {
     for (let personaje of personajesDisponibles) {
-        if (document.getElementById(`${personaje}-${tipo}`).checked) {
-            return personaje;
+        if (document.getElementById(`${personaje.nombre}-${tipo}`).checked) {
+            return personaje.nombre;
         }
     }
     return '';
 }
 
-// ======================
-// DRY: Función para resaltar tarjeta seleccionada
-// ======================
-function resaltarTarjetaSeleccionada(tipo, personaje) {
+function resaltarTarjetaSeleccionada(tipo, nombre) {
     document.querySelectorAll(`.opcion-personaje[for$="-${tipo}"]`).forEach(card => card.classList.remove('seleccionado'));
-    let label = document.querySelector(`label[for="${personaje}-${tipo}"]`);
+    let label = document.querySelector(`label[for="${nombre}-${tipo}"]`);
     if (label) label.classList.add('seleccionado');
 }
 
-// ======================
-// DRY: Habilitar/deshabilitar botones de ataque
-// ======================
 function setEstadoBotonesAtaque(habilitar) {
     ["boton-puño", "boton-embestida", "boton-patada", "boton-barrida"].forEach(id => {
         document.getElementById(id).disabled = !habilitar;
@@ -60,33 +77,27 @@ function setEstadoBotonesAtaque(habilitar) {
 }
 
 // ======================
-// 3) INICIALIZAR JUEGO
+// INICIO DEL JUEGO
 // ======================
 function iniciarJuego() {
-    document.getElementById("boton-personaje")
-            .addEventListener("click", seleccionarPersonajeJugador);
+    document.getElementById("boton-personaje").addEventListener("click", seleccionarPersonajeJugador);
+    ["puño", "embestida", "patada", "barrida"].forEach(ataque =>
+        document.getElementById(`boton-${ataque}`).addEventListener("click", () => manejarAtaque(ataque.toUpperCase()))
+    );
 
-    document.getElementById("boton-puño")
-            .addEventListener("click", () => manejarAtaque("PUÑO"));
-    document.getElementById("boton-embestida")
-            .addEventListener("click", () => manejarAtaque("EMBESTIDA"));
-    document.getElementById("boton-patada")
-            .addEventListener("click", () => manejarAtaque("PATADA"));
-    document.getElementById("boton-barrida")
-            .addEventListener("click", () => manejarAtaque("BARRIDA"));
-    setEstadoBotonesAtaque(false); // DRY
+    setEstadoBotonesAtaque(false);
 
-    document.getElementById("boton-reiniciar")
-            .addEventListener("click", reiniciarJuego);
+    document.getElementById("boton-reiniciar").addEventListener("click", reiniciarJuego);
 
     document.getElementById("seleccionar-ataque").style.display = 'none';
     document.getElementById("mensajes").style.display = 'none';
     document.getElementById("reiniciar").style.display = 'none';
 
-    document.getElementById("boton-reglas").addEventListener("click", function() {
+    document.getElementById("boton-reglas").addEventListener("click", () => {
         document.getElementById("panel-reglas").style.display = "block";
     });
-    document.getElementById("cerrar-reglas").addEventListener("click", function() {
+
+    document.getElementById("cerrar-reglas").addEventListener("click", () => {
         document.getElementById("panel-reglas").style.display = "none";
     });
 
@@ -97,171 +108,117 @@ function iniciarJuego() {
     btnLuchar.style.display = "none";
     document.getElementById("seleccionar-enemigo").appendChild(btnLuchar);
 
-    btnLuchar.addEventListener("click", function () {
-        // Verificar si se seleccionó manualmente un enemigo
-        estadoJuego.personajes.enemigo = obtenerPersonajeSeleccionado('enemigo');
-        
-        // Si no se seleccionó un enemigo, elegir uno aleatorio
-        if (!estadoJuego.personajes.enemigo) {
-            const posiblesEnemigos = personajesDisponibles.filter(p => p !== estadoJuego.personajes.jugador);
-            estadoJuego.personajes.enemigo = posiblesEnemigos[Math.floor(Math.random() * posiblesEnemigos.length)];
-            // Marcar el radio button del enemigo seleccionado aleatoriamente
-            const radioEnemigo = document.getElementById(`${estadoJuego.personajes.enemigo}-enemigo`);
-            if (radioEnemigo) {
-                radioEnemigo.checked = true;
-            }
-        }
-
-        // Actualizar la interfaz con el enemigo seleccionado
-        document.getElementById("personaje-enemigo").innerText = estadoJuego.personajes.enemigo;
-        
-        // Aplicar animación al enemigo
-        const labelEnemigo = document.querySelector(`label[for="${estadoJuego.personajes.enemigo}-enemigo"]`);
-        if (labelEnemigo) {
-            labelEnemigo.style.animation = "vs-slide-in-right 0.7s cubic-bezier(.5,1.5,.5,1) both";
-        }
-        
-        // Resaltar la tarjeta del enemigo
-        resaltarTarjetaSeleccionada('enemigo', estadoJuego.personajes.enemigo);
-        
-        // Deshabilitar la selección una vez que se inicia la lucha
-        document.getElementsByName("personaje-enemigo").forEach(radio => radio.disabled = true);
-        
-        // Esperar a que termine la animación antes de continuar
-        setTimeout(() => {
-            document.getElementById("seleccionar-personaje").style.display = "none";
-            document.getElementById("seleccionar-enemigo").style.display = "none";
-            mostrarPanelAtaque();
-        }, 600); // Esperar un poco más que la duración de la animación
-    });
+    btnLuchar.addEventListener("click", seleccionarPersonajeEnemigo);
 }
 
 window.addEventListener('load', iniciarJuego);
 
 // ======================
-// 4) SELECCIÓN DEL PERSONAJE JUGADOR
+// SELECCIONAR PERSONAJE JUGADOR
 // ======================
 function seleccionarPersonajeJugador() {
-    let spanPJ = document.getElementById('personaje-jugador');
-    estadoJuego.personajes.jugador = obtenerPersonajeSeleccionado('jugador'); // DRY
-
-    if (!estadoJuego.personajes.jugador) {
-        alert("Por favor, selecciona un personaje para ti.");
+    const nombre = obtenerPersonajeSeleccionado('jugador');
+    if (!nombre) {
+        alert("Por favor, selecciona un personaje.");
         return;
     }
 
-    spanPJ.innerText = estadoJuego.personajes.jugador;
+    const personaje = personajesDisponibles.find(p => p.nombre === nombre);
+    estadoJuego.personajes.jugador = personaje;
+    document.getElementById('personaje-jugador').innerText = personaje.nombre;
+
     document.getElementById("boton-personaje").disabled = true;
-    document.getElementsByName("personaje-jugador")
-        .forEach(radio => radio.disabled = true);
+    document.getElementsByName("personaje-jugador").forEach(r => r.disabled = true);
 
-    // Aplicar animación de selección al jugador
-    resaltarTarjetaSeleccionada('jugador', estadoJuego.personajes.jugador); // DRY
+    resaltarTarjetaSeleccionada('jugador', personaje.nombre);
 
-    // Mostrar botón de luchar y aplicar la misma animación que antes
-    const btnLuchar = document.getElementById("boton-luchar");
-    btnLuchar.style.display = "block";
-
-    // Aplicar animación cuando se selecciona el personaje del jugador
-    const labelJugador = document.querySelector(`label[for="${estadoJuego.personajes.jugador}-jugador"]`);
-    if (labelJugador) {
-        labelJugador.style.animation = "vs-slide-in-left 0.7s cubic-bezier(.5,1.5,.5,1) both";
-    }
+    const labelJugador = document.querySelector(`label[for="${personaje.nombre}-jugador"]`);
+    if (labelJugador) labelJugador.style.animation = "vs-slide-in-left 0.7s cubic-bezier(.5,1.5,.5,1) both";
 
     document.getElementById("boton-luchar").style.display = "block";
 }
 
-// La selección del enemigo ahora se maneja automáticamente en seleccionarPersonajeJugador()
+// ======================
+// SELECCIONAR ENEMIGO
+// ======================
+function seleccionarPersonajeEnemigo() {
+    let nombre = obtenerPersonajeSeleccionado('enemigo');
+    let enemigo;
+
+    if (!nombre) {
+        const posibles = personajesDisponibles.filter(p => p !== estadoJuego.personajes.jugador);
+        enemigo = posibles[Math.floor(Math.random() * posibles.length)];
+        const radio = document.getElementById(`${enemigo.nombre}-enemigo`);
+        if (radio) radio.checked = true;
+    } else {
+        enemigo = personajesDisponibles.find(p => p.nombre === nombre);
+    }
+
+    estadoJuego.personajes.enemigo = enemigo;
+    document.getElementById("personaje-enemigo").innerText = enemigo.nombre;
+
+    const labelEnemigo = document.querySelector(`label[for="${enemigo.nombre}-enemigo"]`);
+    if (labelEnemigo) labelEnemigo.style.animation = "vs-slide-in-right 0.7s cubic-bezier(.5,1.5,.5,1) both";
+
+    resaltarTarjetaSeleccionada('enemigo', enemigo.nombre);
+
+    document.getElementsByName("personaje-enemigo").forEach(r => r.disabled = true);
+
+    setTimeout(() => {
+        document.getElementById("seleccionar-personaje").style.display = "none";
+        document.getElementById("seleccionar-enemigo").style.display = "none";
+        mostrarPanelAtaque();
+    }, 600);
+}
 
 // ======================
-// 6) MOSTRAR PANEL DE ATAQUE SI AMBOS PERSONAJES ESTÁN ELEGIDOS
+// PANEL DE ATAQUE
 // ======================
 function mostrarPanelAtaque() {
-    // Obtener elementos VS una sola vez
-    const vj = document.getElementById("versus-jugador");
-    const ve = document.getElementById("versus-enemigo");
-    
-    // Mostrar paneles necesarios
+    const jugador = estadoJuego.personajes.jugador;
+    const enemigo = estadoJuego.personajes.enemigo;
+
     document.getElementById("seleccionar-ataque").style.display = 'block';
     document.getElementById("mensajes").style.display = 'block';
     document.getElementById("reiniciar").style.display = 'block';
 
-    // Actualizar imágenes y nombres
-    document.getElementById("img-jugador-vs").src = estadoJuego.imagenes[estadoJuego.personajes.jugador];
-    document.getElementById("img-jugador-vs").alt = estadoJuego.personajes.jugador;
-    document.getElementById("nombre-jugador-vs").innerText = estadoJuego.personajes.jugador;
+    document.getElementById("img-jugador-vs").src = jugador.imagen;
+    document.getElementById("img-jugador-vs").alt = jugador.nombre;
+    document.getElementById("nombre-jugador-vs").innerText = jugador.nombre;
 
-    document.getElementById("img-enemigo-vs").src = estadoJuego.imagenes[estadoJuego.personajes.enemigo];
-    document.getElementById("img-enemigo-vs").alt = estadoJuego.personajes.enemigo;
-    document.getElementById("nombre-enemigo-vs").innerText = estadoJuego.personajes.enemigo;
-
-    // Limpiar clases y animaciones previas
-    vj.classList.remove("vs-ganador", "vs-perdedor");
-    ve.classList.remove("vs-ganador", "vs-perdedor");
-    vj.style.animation = "none";
-    ve.style.animation = "none";
-    
-    // Posicionar elementos fuera de la pantalla
-    vj.style.transform = "translateX(-100%)";
-    ve.style.transform = "translateX(100%)";
-    
-    // Forzar un reflow/repaint
-    vj.offsetHeight;
-    ve.offsetHeight;
-    
-    // Aplicar nuevas animaciones
-    requestAnimationFrame(() => {
-        vj.style.transform = "";
-        ve.style.transform = "";
-        vj.style.animation = "vs-slide-in-left 0.7s cubic-bezier(.5,1.5,.5,1) both";
-        ve.style.animation = "vs-slide-in-right 0.7s cubic-bezier(.5,1.5,.5,1) both";
-    });
+    document.getElementById("img-enemigo-vs").src = enemigo.imagen;
+    document.getElementById("img-enemigo-vs").alt = enemigo.nombre;
+    document.getElementById("nombre-enemigo-vs").innerText = enemigo.nombre;
 
     actualizarVidasEnPantalla();
-    setEstadoBotonesAtaque(true); // DRY
+    setEstadoBotonesAtaque(true);
 }
 
 // ======================
-// 7) HABILITAR / DESHABILITAR BOTONES DE ATAQUE
-// ======================
-// Reemplazado por setEstadoBotonesAtaque(habilitar) // DRY
-
-// ======================
-// 8) MANEJAR ATAQUE DEL JUGADOR
+// MANEJAR ATAQUE
 // ======================
 function manejarAtaque(ataqueJugador) {
-    if (estadoJuego.vidas.jugador <= 0 || estadoJuego.vidas.enemigo <= 0) return;
-    if (estadoJuego.personajes.jugador === '' || estadoJuego.personajes.enemigo === '') return;
+    const jugador = estadoJuego.personajes.jugador;
+    const enemigo = estadoJuego.personajes.enemigo;
 
-    const indice = Math.floor(Math.random() * estadoJuego.ataques.length);
-    const ataqueEnemigo = estadoJuego.ataques[indice];
+    if (!jugador.estaVivo() || !enemigo.estaVivo()) return;
 
-    compararAtaques(ataqueJugador, ataqueEnemigo);
+    const ataqueEnemigo = enemigo.ataqueAleatorio();
+    compararAtaques(jugador, enemigo, ataqueJugador, ataqueEnemigo);
 }
 
 // ======================
-// 9) COMPARAR ATAQUES Y ACTUALIZAR VIDAS
+// COMPARAR ATAQUES
 // ======================
-function compararAtaques(ataqueJugador, ataqueEnemigo) {
+function compararAtaques(jugador, enemigo, ataqueJugador, ataqueEnemigo) {
     let mensaje = "";
+    const textoMensaje = document.getElementById("texto-mensaje");
 
     if (ataqueJugador === ataqueEnemigo) {
-        // Chance de recuperación en empate
-        if (Math.random() < estadoJuego.probabilidades.recuperacion) {
-            // Recuperar vida del jugador
-            if (estadoJuego.vidas.jugador < estadoJuego.vidasIniciales) {
-                estadoJuego.vidas.jugador = estadoJuego.vidasIniciales;
-                mensaje = `💫 ¡INCREÍBLE! ${estadoJuego.personajes.jugador} se ha motivado y recuperó toda su vida! 💫`;
-                const textoMensaje = document.getElementById("texto-mensaje");
-                textoMensaje.style.color = "#00ff00";
-                textoMensaje.style.fontSize = "1.2em";
-                setTimeout(() => {
-                    textoMensaje.style.color = "";
-                    textoMensaje.style.fontSize = "";
-                }, 1000);
-            } else {
-                mensaje = `¡EMPATE! Ambos usaron ${ataqueJugador}.`;
-            }
+        if (Math.random() < estadoJuego.probabilidades.recuperacion && jugador.vidas < jugador.vidasIniciales) {
+            jugador.recuperarVidaCompleta();
+            mensaje = `💫 ¡${jugador.nombre} recuperó toda su vida! 💫`;
+            textoMensaje.style.color = "#00ff00";
         } else {
             mensaje = `¡EMPATE! Ambos usaron ${ataqueJugador}.`;
         }
@@ -272,118 +229,94 @@ function compararAtaques(ataqueJugador, ataqueEnemigo) {
             (ataqueJugador === "BARRIDA" && ataqueEnemigo === "EMBESTIDA") ||
             (ataqueJugador === "EMBESTIDA" && ataqueEnemigo === "PUÑO");
 
-        // Determinar si es un ataque crítico
         const esCritico = Math.random() < estadoJuego.probabilidades.critico;
-        const dañoBase = 1;
-        const daño = esCritico ? 2 : dañoBase;
+        const daño = esCritico ? 2 : 1;
 
         if (ganaJugador) {
-            estadoJuego.vidas.enemigo -= daño;
-            const textoMensaje = document.getElementById("texto-mensaje");
-            mensaje = esCritico ? 
-                `⚡ ¡GOLPE CRÍTICO! Tu ${ataqueJugador} causó ${daño} de daño a ${estadoJuego.personajes.enemigo}! ⚡` :
-                `¡GANASTE! Tu ${ataqueJugador} derrotó a ${ataqueEnemigo}.`;
-            if (esCritico) {
-                textoMensaje.style.color = "#ff6b00";
-                textoMensaje.style.fontSize = "1.2em";
-                setTimeout(() => {
-                    textoMensaje.style.color = "";
-                    textoMensaje.style.fontSize = "";
-                }, 1000);
-            }
+            enemigo.recibirDaño(daño);
+            mensaje = esCritico ?
+                `⚡ ¡GOLPE CRÍTICO! ${jugador.nombre} hizo ${daño} de daño. ⚡` :
+                `¡GANASTE! ${ataqueJugador} vence a ${ataqueEnemigo}.`;
+            textoMensaje.style.color = esCritico ? "#ff6b00" : "";
         } else {
-            estadoJuego.vidas.jugador -= daño;
-            const textoMensaje = document.getElementById("texto-mensaje");
-            mensaje = esCritico ? 
-                `⚡ ¡GOLPE CRÍTICO RECIBIDO! El ${ataqueEnemigo} de ${estadoJuego.personajes.enemigo} causó ${daño} de daño! ⚡` :
-                `¡PERDISTE! Tu ${ataqueJugador} fue vencido por ${ataqueEnemigo}.`;
-            if (esCritico) {
-                textoMensaje.style.color = "#ff0000";
-                textoMensaje.style.fontSize = "1.2em";
-                setTimeout(() => {
-                    textoMensaje.style.color = "";
-                    textoMensaje.style.fontSize = "";
-                }, 1000);
-            }
+            jugador.recibirDaño(daño);
+            mensaje = esCritico ?
+                `⚡ ¡CRÍTICO RECIBIDO! ${enemigo.nombre} te hizo ${daño} de daño. ⚡` :
+                `¡PERDISTE! ${ataqueJugador} pierde contra ${ataqueEnemigo}.`;
+            textoMensaje.style.color = esCritico ? "#ff0000" : "";
         }
     }
 
-    actualizarVidasEnPantalla();
-    document.getElementById("texto-mensaje").innerText = mensaje;
+    textoMensaje.innerText = mensaje;
+    setTimeout(() => textoMensaje.style.color = "", 1000);
 
-    if (estadoJuego.vidas.jugador <= 0 || estadoJuego.vidas.enemigo <= 0) {
-        finalizarJuego();
-    }
+    actualizarVidasEnPantalla();
+    if (!jugador.estaVivo() || !enemigo.estaVivo()) finalizarJuego();
 }
 
 // ======================
-// 10) ACTUALIZAR VIDAS EN EL HTML
+// ACTUALIZAR VIDAS
 // ======================
 function actualizarVidasEnPantalla() {
-    document.getElementById("vidas-jugador").innerText = estadoJuego.vidas.jugador;
-    document.getElementById("vidas-enemigo").innerText = estadoJuego.vidas.enemigo;
+    document.getElementById("vidas-jugador").innerText = estadoJuego.personajes.jugador.vidas;
+    document.getElementById("vidas-enemigo").innerText = estadoJuego.personajes.enemigo.vidas;
 }
 
 // ======================
-// 11) FINALIZAR JUEGO
+// FINALIZAR JUEGO
 // ======================
 function finalizarJuego() {
-    setEstadoBotonesAtaque(false); // DRY
+    setEstadoBotonesAtaque(false);
     const textoFinal = document.getElementById("texto-mensaje");
 
-    document.getElementById("versus-jugador").classList.remove("vs-ganador", "vs-perdedor");
-    document.getElementById("versus-enemigo").classList.remove("vs-ganador", "vs-perdedor");
+    const jugador = estadoJuego.personajes.jugador;
+    const enemigo = estadoJuego.personajes.enemigo;
 
-    const vj = document.getElementById("versus-jugador");
-    const ve = document.getElementById("versus-enemigo");
-    vj.style.animation = "";
-    ve.style.animation = "";
-
-    if (estadoJuego.vidas.jugador <= 0) {
-        textoFinal.innerText = `¡HAS SIDO DERROTADO! ${estadoJuego.personajes.enemigo} se impuso.`;
+    if (!jugador.estaVivo()) {
+        textoFinal.innerText = `¡HAS SIDO DERROTADO! ${enemigo.nombre} ganó.`;
         document.getElementById("versus-jugador").classList.add("vs-perdedor");
         document.getElementById("versus-enemigo").classList.add("vs-ganador");
-    } else if (estadoJuego.vidas.enemigo <= 0) {
-        textoFinal.innerText = `¡FELICITACIONES! ${estadoJuego.personajes.jugador} ganó la batalla.`;
+    } else {
+        textoFinal.innerText = `¡GANASTE! ${jugador.nombre} venció a ${enemigo.nombre}.`;
         document.getElementById("versus-jugador").classList.add("vs-ganador");
         document.getElementById("versus-enemigo").classList.add("vs-perdedor");
     }
 }
 
 // ======================
-// 12) REINICIAR JUEGO
+// REINICIAR JUEGO
 // ======================
 function reiniciarJuego() {
-    document.querySelectorAll('.opcion-personaje').forEach(card => card.classList.remove('seleccionado'));
+    estadoJuego.personajes.jugador = null;
+    estadoJuego.personajes.enemigo = null;
 
-    estadoJuego.personajes.jugador = '';
-    estadoJuego.personajes.enemigo = '';
-    estadoJuego.vidas.jugador = estadoJuego.vidasIniciales;
-    estadoJuego.vidas.enemigo = estadoJuego.vidasIniciales;
+    personajesDisponibles.forEach(p => p.recuperarVidaCompleta());
+
+    document.querySelectorAll('.opcion-personaje').forEach(card => card.classList.remove('seleccionado'));
+    document.getElementsByName("personaje-jugador").forEach(r => {
+        r.checked = false;
+        r.disabled = false;
+    });
+    document.getElementsByName("personaje-enemigo").forEach(r => {
+        r.checked = false;
+        r.disabled = false;
+    });
 
     document.getElementById("personaje-jugador").innerText = "";
     document.getElementById("personaje-enemigo").innerText = "";
-    document.getElementById("vidas-jugador").innerText = estadoJuego.vidas.jugador;
-    document.getElementById("vidas-enemigo").innerText = estadoJuego.vidas.enemigo;
     document.getElementById("texto-mensaje").innerText = "";
-
-    document.getElementById("seleccionar-ataque").style.display = 'none';
-    document.getElementById("mensajes").style.display = 'none';
-    document.getElementById("reiniciar").style.display = 'none';
-
-    document.getElementById("boton-personaje").disabled = false;
-    document.getElementsByName("personaje-jugador").forEach(radio => {
-        radio.checked = false;
-        radio.disabled = false;
-    });
-
-    setEstadoBotonesAtaque(false); // DRY
-
-    let btnLuchar = document.getElementById("boton-luchar");
-    if (btnLuchar) btnLuchar.style.display = "none";
 
     document.getElementById("seleccionar-personaje").style.display = "block";
     document.getElementById("seleccionar-enemigo").style.display = "block";
+    document.getElementById("reiniciar").style.display = "none";
+    document.getElementById("mensajes").style.display = "none";
+    document.getElementById("seleccionar-ataque").style.display = "none";
+
+    setEstadoBotonesAtaque(false);
+    document.getElementById("boton-personaje").disabled = false;
+
+    let btnLuchar = document.getElementById("boton-luchar");
+    if (btnLuchar) btnLuchar.style.display = "none";
 
     document.getElementById("versus-jugador").classList.remove("vs-ganador", "vs-perdedor");
     document.getElementById("versus-enemigo").classList.remove("vs-ganador", "vs-perdedor");
