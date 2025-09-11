@@ -1,105 +1,122 @@
-// Elementos del modal
 const modalContainer = document.getElementById("modal-container");
 const modalOverlay = document.getElementById("modal-overlay");
-
-// Boton del carrito
 const cartBtn = document.getElementById("cart-btn");
+const cartCounter = document.getElementById("cart-counter");
 
-// Array del carrito
 const displayCart = () => {
-
-    modalContainer.innerHTML = ""; // Limpiar el contenido previo del modal
-
-    // Mostrar el modal (por defecto esta oculto en el CSS)
+    modalContainer.innerHTML = "";
     modalContainer.style.display = "block";
     modalOverlay.style.display = "block";
 
-    // Modal header
+  // Header
     const modalHeader = document.createElement("div");
+    modalHeader.className = "modal-header";
 
-    // Modal close button
-    const modalClose = document.createElement("div");
-    modalClose.innerText = "❌";
-    modalClose.className = "modal-close";
-    modalHeader.append(modalClose);
-
-    // Close modal event
-    modalClose.addEventListener("click", () => {
+    const modalClose = document.createElement("span");
+        modalClose.innerText = "❌";
+        modalClose.className = "modal-close";
+        modalClose.onclick = () => {
         modalContainer.style.display = "none";
         modalOverlay.style.display = "none";
-    });
+    };
+    modalHeader.appendChild(modalClose);
 
-    // Close modal event
-    const modalTitle = document.createElement("div");
+    const modalTitle = document.createElement("h2");
     modalTitle.innerText = "Carrito";
-    modalTitle.className = "modal-title";
-    modalHeader.append(modalTitle);
+    modalHeader.appendChild(modalTitle);
+    modalContainer.appendChild(modalHeader);
 
-    // Append modal header to modal container
-    modalContainer.append(modalHeader);
+  // Body
+    if (cart.length === 0) {
+        const empty = document.createElement("p");
+        empty.innerText = "Tu carrito está vacío";
+        empty.className = "modal-body";
+        modalContainer.appendChild(empty);
+    } else {
+    cart.forEach((prod) => {
+        const row = document.createElement("div");
+        row.className = "modal-body";
+        row.innerHTML = `
+        <div class="product">
+            <img class="product-img" src="${prod.img}" />
+            <div class="product-info">
+                <h4>${prod.productName}</h4>
+            </div>
+            <div class="quantity">
+                <span class="quantity-btn-decrease">-</span>
+                <span class="quantity-input">${prod.quantity}</span>
+                <span class="quantity-btn-increase">+</span>
+            </div>
+          <div class="price">${(prod.price * prod.quantity).toFixed(2)} $</div>
+            <div class="delete-product">❌</div>
+        </div>`;
 
-    // Modal body
-    cart.forEach(product => {
+        modalContainer.appendChild(row);
 
-        const modalBody = document.createElement("div");
-        modalBody.className = "modal-body";
-        modalBody.innerHTML =  `
-            <div class="product">
-                <img class="product-img" src="${product.img}"/>
-                <div class="product-info">
-                    <h4>${product.productName}</h4>
-                </div>
-                <div class="quantity">
-                    <span class= "quantity-btn-decrease">-</span>
-                    <span class= "quantity-input">${product.quantity}</span>
-                    <span class= "quantity-btn-increase">+</span>
-                </div>
-                <div class="price">${product.price * product.quantity} $</div>
-                <div class="delete-product">❌</div>
-            </div >
-            `;
-        modalContainer.append(modalBody);
-
-        // Delete product event
-        const decreaseBtn = modalBody.querySelector(".quantity-btn-decrease");
-        decreaseBtn.addEventListener("click", () => {
-            if(product.quantity !== 1){ // Evitamos que la cantidad sea menor a 1
-                product.quantity--;
-                displayCart(); // Llamamos a displayCart para actualizar el carrito
+      // +/- y borrar
+        row.querySelector(".quantity-btn-decrease").onclick = () => {
+            if (prod.quantity > 1) {
+                prod.quantity--;
+                displayCart();
+                displayCartCounter();
             }
-        });
-
-        // Increase product event
-        const increaseBtn = modalBody.querySelector(".quantity-btn-increase");
-        increaseBtn.addEventListener("click", () => {
-            product.quantity++;
+            };
+            row.querySelector(".quantity-btn-increase").onclick = () => {
+            prod.quantity++;
             displayCart();
-        });
-
-        // Delete product event
-        const deleteProduct = modalBody.querySelector(".delete-product");
-        deleteProduct.addEventListener("click", () => {
-            deleteCartProduct(product.id);
+            displayCartCounter();
+            };
+            row.querySelector(".delete-product").onclick = () => {
+            deleteCartProduct(prod.id);
             displayCart();
-        });
+            displayCartCounter();
+            };
     });
 
-    // Modal footer
-    // Calculate total price
-    const total = cart.reduce((acc, el) => acc + el.price * el.quantity, 0);
-
+    // Footer
+    const total = cart.reduce((acc, p) => acc + p.price * p.quantity, 0);
     const modalFooter = document.createElement("div");
     modalFooter.className = "modal-footer";
-    modalFooter.innerHTML = `
-        <div class="total-price">Total: ${total} $</div>
-        `;
-    modalContainer.append(modalFooter);
-    
+    modalFooter.innerHTML = `<div class="total-price">Total: ${total.toFixed(2)} $</div>`;
+
+    // BOTÓN ÚNICO DE CHECKOUT
+    const checkoutBtn = document.createElement("button");
+    checkoutBtn.innerText = "Proceed to checkout";
+    checkoutBtn.className = "btn-checkout";
+    checkoutBtn.onclick = async () => {
+        if (cart.length === 0) return alert("Tu carrito está vacío");
+            try {
+            const res = await fetch("/create_preference", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ cart }),
+            });
+            const data = await res.json();
+            if (data.init_point) {
+                window.location.href = data.init_point;
+            } else {
+                alert("Error al crear preferencia");
+            }
+            }catch (err) {
+                console.error(err);
+                alert("No se pudo conectar con el servidor");
+            }
+    };
+
+    modalFooter.appendChild(checkoutBtn);
+    modalContainer.appendChild(modalFooter);
+    }
+};
+
+const deleteCartProduct = (id) => {
+    const idx = cart.findIndex((el) => el.id === id);
+    cart.splice(idx, 1);
+};
+
+const displayCartCounter = () => {
+    const len = cart.reduce((acc, el) => acc + el.quantity, 0);
+    cartCounter.style.display = len ? "block" : "none";
+    cartCounter.innerText = len;
 };
 
 cartBtn.addEventListener("click", displayCart);
-
-const deleteCartProduct = (id) => {
-    const foundId = cart.findIndex((element) => element.id === id);
-    cart.splice(foundId, 1);
-}
