@@ -1,0 +1,60 @@
+@startuml
+left to right direction
+skinparam usecaseBackgroundColor #FFFFFF
+skinparam usecaseBorderColor #333333
+skinparam actorStyle awesome
+
+actor Paciente as p
+actor Recepcionista as r
+actor Medico as m
+actor "Técnico de laboratorio" as t
+actor "Área administrativa" as a
+
+rectangle "Sistema de Gestión Clínica" {
+  usecase "Solicitar turno" as UC1
+  usecase "Verificar\ndisponibilidad de médico" as UC1a
+  usecase "Confirmar cita" as UC1b
+
+  usecase "Confirmar asistencia\nde paciente" as UC2
+  usecase "Abrir historia\nclínica" as UC3
+
+  usecase "Registrar diagnóstico" as UC4
+  usecase "Emitir receta\nelectrónica" as UC5
+  usecase "Solicitar estudio" as UC6
+  usecase "Generar orden\nde estudio" as UC6a
+
+  usecase "Cargar resultados\nde estudio" as UC7
+  usecase "Asociar resultado\na historia clínica" as UC7a
+
+  usecase "Facturar consulta\nal seguro" as UC8
+  usecase "Registrar pago" as UC9
+
+  usecase "Recibir orden\nde estudio" as UC10
+  usecase "Consultar resultados\nde estudios" as UC11
+}
+
+' Enlaces Actor -> Caso
+p --> UC1
+p --> UC10
+p --> UC11
+
+r --> UC2
+r --> UC3
+
+m --> UC4
+m --> UC5
+m --> UC6
+
+t --> UC7
+
+a --> UC8
+a --> UC9
+
+' include / extend
+UC1 --> UC1a : <<include>>
+UC1 --> UC1b : <<include>>
+UC6 --> UC6a : <<include>>
+UC7 --> UC7a : <<include>>
+UC9 ..> UC8 : <<extend>>
+
+@enduml
