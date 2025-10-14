@@ -77,10 +77,13 @@ def main() :
     explosiones = [ ]
     puntos = 0
     nivel = 1
+    last_laser_time = 0
+    laser_cooldown_ms = 200  # 0.1 seconds
 
     clock = pygame.time.Clock ( )
     running = True
     while running :
+        current_time = pygame.time.get_ticks()
         for event in pygame.event.get ( ) :
             if event.type == pygame.QUIT :
                 pygame.quit ( )
@@ -99,9 +102,11 @@ def main() :
 
         personaje.mover ( dx , dy )
 
-        if keys [ pygame.K_SPACE ] :
-            personaje.lanzar_laser ( )
-            sonido_laser.play ( )
+        if keys[pygame.K_SPACE]:
+            if current_time - last_laser_time >= laser_cooldown_ms:
+                personaje.lanzar_laser()
+                sonido_laser.play()
+                last_laser_time = current_time
 
         # Actualizar posición de enemigos y manejar colisiones
         for enemigo in enemigos [ : ] :  # Iterar sobre una copia para eliminar de la lista original
@@ -147,3 +152,49 @@ def main() :
             enemigo.dibujar ( screen )
         for explosion in explosiones :
             explosion.dibujar ( screen )
+
+        # Mostrar marcador y nivel
+        font = pygame.font.Font ( None , 36 )
+        texto_puntos = font.render ( f"Puntos: {puntos}" , True , (255 , 255 , 255) )
+        texto_nivel = font.render ( f"Nivel: {nivel}" , True , (255 , 255 , 255) )
+        screen.blit ( texto_puntos , (10 , 50) )
+        screen.blit ( texto_nivel , (10 , 90) )
+
+        if puntos >= 250 :
+            nivel += 1
+            puntos = 0  # Resetea el puntaje al cambiar de nivel
+
+        pygame.display.flip ( )
+        clock.tick ( 60 )
+
+    # Mostrar mensaje de GAME OVER
+    screen.fill ( (0 , 0 , 0) )
+
+    # Definir fuente
+    font_large = pygame.font.Font ( None , 74 )
+    font_small = pygame.font.Font ( None , 36 )
+
+    # Renderizar textos
+    texto_game_over = font_large.render ( "GAME OVER" , True , (255 , 0 , 0) )
+    texto_mensaje = font_small.render ( "Que la Fuerza te acompañe" , True , (255 , 255 , 255) )
+
+    # Calcular posiciones para centrar el texto
+    pos_x_game_over = SCREEN_WIDTH // 2 - texto_game_over.get_width ( ) // 2
+    pos_y_game_over = SCREEN_HEIGHT // 2 - texto_game_over.get_height ( ) // 2 - 20  # Ajusta el margen vertical
+
+    pos_x_mensaje = SCREEN_WIDTH // 2 - texto_mensaje.get_width ( ) // 2
+    pos_y_mensaje = SCREEN_HEIGHT // 2 + texto_game_over.get_height ( ) // 2 + 20  # Ajusta el margen vertical
+
+    # Dibujar textos en la pantalla
+    screen.blit ( texto_game_over , (pos_x_game_over , pos_y_game_over) )
+    screen.blit ( texto_mensaje , (pos_x_mensaje , pos_y_mensaje) )
+
+    # Actualizar la pantalla
+    pygame.display.flip ( )
+    pygame.time.wait ( 2000 )  # Mostrar GAME OVER durante 2 segundos
+    pygame.quit ( )
+    sys.exit ( )
+
+
+if __name__ == '__main__' :
+    main ( )

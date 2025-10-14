@@ -1,7 +1,6 @@
 import pygame
-import os 
+import os  # proporciona funcionalidades para interactuar con el sistema
 from constantes import ASSETS_PATH
-
 
 class Personaje:
     def __init__(self, x, y):
@@ -38,13 +37,14 @@ class Personaje:
         pygame.draw.rect(screen, (0, 255, 0), (10, 10, self.energia, 10))  # Barra de energía
 
 class Enemigo:
-    def __init__(self, x, y):        
+    def __init__(self, x, y):
+        # Construye la ruta completa a la imagen del enemigo
         self.image = pygame.image.load(os.path.join(ASSETS_PATH, 'images', 'enemigo1.png'))
         self.image = pygame.transform.scale(self.image, (80, 80))
         self.rect = self.image.get_rect(topleft=(x, y))
 
     def mover(self):
-        self.rect.y += 5  
+        self.rect.y += 5  # Velocidad de movimiento del enemigo
 
     def dibujar(self, screen):
         screen.blit(self.image, self.rect.topleft)
