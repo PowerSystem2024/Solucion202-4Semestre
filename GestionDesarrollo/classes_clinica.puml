@@ -1,0 +1,123 @@
+@startuml
+skinparam classAttributeIconSize 0
+hide circle
+left to right direction
+
+class Persona {
+  +id: int
+  +nombre: string
+  +dni: string
+  +email: string
+}
+
+class Paciente {
+  +nroHistoria: string
+}
+class Medico {
+  +matricula: string
+  +especialidad: string
+}
+class Recepcionista
+class Tecnico
+class Administracion
+
+Persona <|-- Paciente
+Persona <|-- Medico
+Persona <|-- Recepcionista
+Persona <|-- Tecnico
+Persona <|-- Administracion
+
+class HistoriaClinica {
+  +id: int
+  +fechaApertura: Date
+}
+Paciente "1" -- "1" HistoriaClinica : posee >
+
+class Turno {
+  +id: int
+  +fechaHora: DateTime
+  +estado: EstadoTurno
+}
+enum EstadoTurno {
+  Pendiente
+  Confirmado
+  Cancelado
+  Atendido
+}
+
+Paciente "1" -- "0..*" Turno : solicita >
+Medico "1" -- "0..*" Turno : atiende >
+
+class Consulta {
+  +id: int
+  +fechaHora: DateTime
+  +motivo: string
+}
+Turno "1" o-- "0..1" Consulta : genera >
+HistoriaClinica "1" -- "0..*" Consulta : registra >
+
+class Diagnostico {
+  +id: int
+  +descripcion: string
+}
+Consulta "1" -- "0..*" Diagnostico
+
+class Receta {
+  +id: int
+  +fecha: Date
+  +indicaciones: string
+}
+Consulta "1" -- "0..*" Receta
+
+class Estudio {
+  +id: int
+  +tipo: string
+  +descripcion: string
+}
+
+class OrdenEstudio {
+  +id: int
+  +fecha: Date
+  +estado: EstadoOrden
+}
+enum EstadoOrden {
+  Emitida
+  EnProceso
+  Finalizada
+  Cancelada
+}
+Consulta "1" -- "0..*" OrdenEstudio : solicita >
+OrdenEstudio "1" --> "1" Estudio
+
+class ResultadoEstudio {
+  +id: int
+  +fecha: Date
+  +informe: string
+  +archivoURL: string
+}
+OrdenEstudio "1" o-- "0..1" ResultadoEstudio
+Tecnico "1" -- "0..*" ResultadoEstudio : carga >
+
+class Factura {
+  +id: int
+  +fecha: Date
+  +monto: decimal
+  +aseguradora: string
+  +estado: EstadoFactura
+}
+enum EstadoFactura {
+  Emitida
+  Pagada
+  Anulada
+}
+Consulta "1" -- "0..1" Factura
+
+class Pago {
+  +id: int
+  +fecha: Date
+  +monto: decimal
+  +medio: string
+}
+Factura "1" o-- "0..1" Pago
+
+@enduml
