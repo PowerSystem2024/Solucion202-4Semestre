@@ -8,6 +8,7 @@ export const listarTarea = (req, res) => {
 };
 
 export const crearTarea = (req, res) => {
+    console.log(req.body);
   res.send("Creando una nueva tarea");
 };
 
