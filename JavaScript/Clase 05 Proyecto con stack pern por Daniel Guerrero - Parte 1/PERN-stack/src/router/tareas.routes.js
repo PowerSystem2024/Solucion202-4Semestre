@@ -1,19 +1,16 @@
 import { Router } from "express";
-import { 
-  actualizarTarea, 
-  crearTarea, 
-  eliminarTarea, 
-  listarTarea, 
-  listarTareas 
-} from "../controllers/tareas.controller.js";
+import { listarTarea } from "../controllers/tareas.controller.js"; 
+import { listarTareas } from "../controllers/tareas.controller.js";
+import { crearTarea } from "../controllers/tareas.controller.js";
+import { actualizarTarea } from "../controllers/tareas.controller.js";
+import { eliminarTarea } from "../controllers/tareas.controller.js";
 
-const router = Router();
+const routes = Router();
 
-// Rutas de tareas
-router.get("/tareas", listarTareas);
-router.get("/tareas/:id", listarTarea);
-router.post("/tareas", crearTarea);
-router.put("/tareas/:id", actualizarTarea);
-router.delete("/tareas/:id", eliminarTarea);
+routes.get("/tareas", listarTareas);
+routes.get("/tareas/:id", listarTarea);
+routes.post("/tareas", crearTarea);
+routes.put("/tareas/:id", actualizarTarea);
+routes.delete("/tareas/:id", eliminarTarea);
 
-export default router;
+export default routes;
