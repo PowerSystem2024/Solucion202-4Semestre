@@ -1,7 +1,21 @@
-export const signin = (req, res) => res.send("ingresando");
+import { Router } from "express";
+import { signin, signup, logout, profile } from "../controllers/auth.controller.js";
 
-export const signup = (req, res) => res.send("registrando");
+const router = Router();
 
-export const signout = (req, res) => res.send("Cerrando sesion");
+router.post("/signin", signin);
+router.post("/signup", signup);
+router.post("/logout", logout);
+router.get("/profile", profile);
 
-export const profile = (req, res) => res.send("Perfil de usuario");
+// router.post("/login", (req, res) => {
+//   const { username, password } = req.body;
+//   // Aquí iría la lógica de autenticación
+//   if (username === "admin" && password === "password") {
+//     res.json({ message: "Login exitoso", token: "fake-jwt-token" });
+//   } else {
+//     res.status(401).json({ message: "Credenciales inválidas" });
+//   }
+// });
+
+export default router;

@@ -1,9 +1,30 @@
-export const listarTareas = (req, res) => res.send('obteniendo tareas');
+export const listarTareas = (req, res) => {
+  res.send("Obteniendo tareas");
+};
 
-export const listarTarea = (req, res) => res.send('obteniendo tarea unica');
+export const listarTarea = (req, res) => {
+  const { id } = req.params;
+  res.send(`Obteniendo tarea con ID: ${id}`);
+};
 
-export const crearTarea = (req, res) => res.send('creando tarea');
+export const crearTarea = (req, res) => {
+  res.send("Creando una nueva tarea");
+};
 
-export const actualizarTarea = (req, res) => res.send('actualizando tarea unica');
+export const actualizarTarea = (req, res) => {
+  const { id } = req.params;
+  res.send(`Actualizando tarea con ID: ${id}`);
+};
 
-export const eliminarTarea = (req, res) => res.send('eliminando tarea unica');
+export const eliminarTarea = (req, res) => {
+  const { id } = req.params;
+  res.send(`Eliminando tarea con ID: ${id}`);
+};
+
+export default {
+  listarTareas,
+  listarTarea,
+  crearTarea,
+  actualizarTarea,
+  eliminarTarea
+};
