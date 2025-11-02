@@ -1,34 +1,30 @@
 {
-  "name": "clase-05-proyecto-con-stack-pern-por-daniel-guerrero---parte-1",
+  "name": "pern-stack",
   "version": "1.0.0",
-  "type": "module",
   "description": "",
-  "main": "src/index.js",
-
-"scripts": {
-  "dev": "nodemon .",
-  "start": "node ."
-},
-
-  
+  "main": "backend/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon .",
+    "start": "node ."
+  },
   "keywords": [],
-  "author": "",
+  "author": "Juan Marcos Orellana",
   "license": "ISC",
   "dependencies": {
-    "bcrypt": "^6.0.0",
-    "cookie": "^1.0.2",
-    "cookie-parser": "^1.4.7",
+    "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
-    "express": "^4.21.2",
+    "express": "^4.18.2",
     "express-promise-router": "^4.1.1",
-    "jsonwebtoken": "^9.0.2",
+    "jsonwebtoken": "^9.0.1",
     "md5": "^2.3.0",
-    "morgan": "^1.10.1",
-    "pg": "^8.16.3",
-    "zod": "^4.1.5"
+    "morgan": "^1.10.0",
+    "pg": "^8.11.3",
+    "zod": "^3.22.2"
   },
   "devDependencies": {
-    "eslint": "^9.35.0",
-    "nodemon": "^3.1.10"
+    "eslint": "^8.47.0",
+    "nodemon": "^3.0.1"
   }
 }
