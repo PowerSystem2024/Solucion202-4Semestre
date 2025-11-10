@@ -1,0 +1,157 @@
+@startuml
+' ===== Enumeraciones =====
+enum EstadoTurno {
+  Pendiente
+  Confirmado
+  Cancelado
+  Atendido
+}
+enum EstadoFactura {
+  Emitida
+  Pagada
+  Anulada
+}
+enum EstadoOrden {
+  Emitida
+  EnProceso
+  Finalizada
+  Cancelada
+}
+
+' ===== Clases base y roles =====
+class Persona {
+  +id: int
+  +nombre: string
+  +dni: string
+  +email: string
+  +telefono: string
+}
+
+class Paciente {
+  +nroHistoria: string
+  +buscarTurnos(): List<Turno>
+}
+class Medico {
+  +matricula: string
+  +especialidad: string
+  +registrarConsulta(c: Consulta): void
+}
+class Recepcionista {
+  +extensionTelefono: string
+  +registrarPaciente(p: Paciente): void
+  +asignarTurno(p: Paciente, m: Medico, fecha: DateTime): Turno
+}
+class Tecnico {
+  +area: string
+  +cargarResultado(o: OrdenEstudio, informe: string, url: string): ResultadoEstudio
+}
+class Administracion {
+  +puesto: string
+  +emitirFactura(c: Consulta, monto: decimal): Factura
+  +registrarPago(f: Factura, monto: decimal, medio: string): Pago
+}
+
+Persona <|-- Paciente
+Persona <|-- Medico
+Persona <|-- Recepcionista
+Persona <|-- Tecnico
+Persona <|-- Administracion
+
+' ===== Entidades clinico-administrativas =====
+class HistoriaClinica {
+  +id: int
+  +fechaApertura: Date
+}
+
+class Turno {
+  +id: int
+  +fechaHora: DateTime
+  +estado: EstadoTurno
+}
+
+class Consulta {
+  +id: int
+  +fechaHora: DateTime
+  +motivo: string
+  +observaciones: string
+}
+
+class Factura {
+  +id: int
+  +fecha: Date
+  +monto: decimal
+  +aseguradora: string
+  +estado: EstadoFactura
+  +numero: string
+}
+
+class Pago {
+  +id: int
+  +fecha: Date
+  +monto: decimal
+  +medio: string
+}
+
+class Receta {
+  +id: int
+  +fecha: Date
+  +indicaciones: string
+}
+
+class Diagnostico {
+  +id: int
+  +descripcion: string
+}
+
+class OrdenEstudio {
+  +id: int
+  +fecha: Date
+  +estado: EstadoOrden
+  +prioridad: string
+}
+
+class Estudio {
+  +id: int
+  +tipo: string
+  +descripcion: string
+}
+
+class ResultadoEstudio {
+  +id: int
+  +fecha: Date
+  +informe: string
+  +archivoURL: string
+}
+
+' ===== Relaciones: composiciones, agregaciones y asociaciones =====
+Paciente "1" *-- "1" HistoriaClinica : posee
+HistoriaClinica "1" *-- "0..*" Consulta : registra
+
+Paciente "1" -- "0..*" Turno : solicita
+Medico "1" -- "0..*" Turno : atiende
+Recepcionista "0..1" -- "0..*" Turno : registra
+
+Consulta "1" *-- "0..1" Factura : genera
+Factura "1" *-- "0..*" Pago : posee
+
+Consulta "1" *-- "0..*" Receta : solicita
+Consulta "1" *-- "0..*" Diagnostico : genera
+Consulta "1" *-- "0..*" OrdenEstudio : solicita
+
+' Estudio como catálogo (agregación)
+OrdenEstudio "1" o-- "1" Estudio : referencia
+
+OrdenEstudio "1" *-- "0..1" ResultadoEstudio : tiene
+Tecnico "0..*" -- "0..*" ResultadoEstudio : carga
+HistoriaClinica "1" o-- "0..*" ResultadoEstudio : contiene
+
+' Relaciones administrativas
+Administracion "0..1" -- "0..*" Factura : administra
+Administracion "0..1" -- "0..*" Pago : administra
+
+' Navegabilidad opcional (mejor claridad)
+Consulta "1" --> "1" Medico : realizadoPor
+Consulta --> Paciente : sobre
+Turno "0..1" --> "0..1" Consulta : genera
+
+@enduml
