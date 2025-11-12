@@ -1,0 +1,9 @@
+services:
+  app-csv:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["bash", "-c", "while true; do sleep 1; done"]
+    volumes:
+      # Esto lo hacemos para que se muestr automaticamente cualquier cambio que hagamos en el c digo fuente
+      - ./:/app
